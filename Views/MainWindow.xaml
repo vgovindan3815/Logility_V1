@@ -1,0 +1,263 @@
+﻿<Window x:Class="Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:FXF3A_Tool.ViewModels"
+        xmlns:views="clr-namespace:FXF3A_Tool.Views"
+        Title="FXF3A Mainframe Tool"
+        Height="768" Width="1280"
+        MinHeight="600" MinWidth="900"
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F2F5">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <!-- DataTemplate mapping: ViewModel type ? View UserControl -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="42"/>    <!-- Title / connection bar -->
+            <RowDefinition Height="Auto"/>  <!-- Error banner (collapsed when empty) -->
+            <RowDefinition Height="*"/>     <!-- Main content -->
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Connection bar ==============================- -->
+        <Border Grid.Row="0" Background="#0F1C3F">
+            <Grid Margin="8,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>  <!-- App name -->
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="170"/>   <!-- Host -->
+                    <ColumnDefinition Width="70"/>    <!-- System -->
+                    <ColumnDefinition Width="100"/>   <!-- UID T -->
+                    <ColumnDefinition Width="100"/>   <!-- UID L -->
+                    <ColumnDefinition Width="220"/>   <!-- RSF path -->
+                    <ColumnDefinition Width="70"/>    <!-- Timeout -->
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="90"/>    <!-- Connect -->
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="90"/>    <!-- Disconnect -->
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>  <!-- Status badge -->
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="FXF3A Tool"
+                           Foreground="White" FontWeight="Bold" FontSize="13"
+                           VerticalAlignment="Center" Margin="4,0,0,0"/>
+
+                <TextBox Grid.Column="2" Style="{StaticResource ConnBarTextBox}"
+                         Text="{Binding LoginVM.Host, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="TN3270 host:port"/>
+                <TextBox Grid.Column="3" Style="{StaticResource ConnBarTextBox}"
+                         Text="{Binding LoginVM.SystemCode, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="CICS system code"/>
+                <TextBox Grid.Column="4" Style="{StaticResource ConnBarTextBox}"
+                         Text="{Binding LoginVM.UidT, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="Terminal User ID"/>
+                <TextBox Grid.Column="5" Style="{StaticResource ConnBarTextBox}"
+                         Text="{Binding LoginVM.UidL, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="Logility User ID"/>
+                <TextBox Grid.Column="6" Style="{StaticResource ConnBarTextBox}"
+                         Text="{Binding LoginVM.RsfPath, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="Path to fxf3270.rsf"/>
+                <TextBox Grid.Column="7" Style="{StaticResource ConnBarTextBox}"
+                         Text="{Binding LoginVM.Timeout, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="Wait timeout (ms)"/>
+
+                <Button Grid.Column="9"
+                        Content="?  CONNECT"
+                        Command="{Binding LoginVM.ConnectCommand}"
+                        Style="{StaticResource ConnectButtonStyle}"/>
+
+                <Button Grid.Column="11"
+                        Content="¦  DISCONNECT"
+                        Command="{Binding LoginVM.DisconnectCommand}"
+                        Style="{StaticResource DisconnectButtonStyle}"
+                        Visibility="{Binding IsConnected,
+                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                <!-- Load Excel + status -->
+                <StackPanel Grid.Column="12" Orientation="Horizontal"
+                            VerticalAlignment="Center" Margin="8,0">
+                    <Button Content="Load Excel"
+                            Command="{Binding LoadAllFromExcelCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="90" Margin="0,0,8,0"/>
+                    <TextBlock Text="{Binding LoadStatus}"
+                               Foreground="#AAAAAA" FontSize="10"
+                               VerticalAlignment="Center" MaxWidth="300"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+
+                <!-- Status badge -->
+                <StackPanel Grid.Column="13" Orientation="Horizontal"
+                            VerticalAlignment="Center" Margin="0,0,8,0">
+                    <Ellipse Width="10" Height="10" Margin="0,0,6,0">
+                        <Ellipse.Fill>
+                            <SolidColorBrush Color="{Binding IsConnected,
+                                Converter={StaticResource BoolToStatusColorConverter}}"/>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <TextBlock Text="{Binding SessionStatus}"
+                               Foreground="#AAAAAA" FontSize="11"
+                               VerticalAlignment="Center" MaxWidth="200"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Row 1: Error banner ================================- -->
+        <Border Grid.Row="1"
+                Background="#7F1D1D" Padding="12,6"
+                Visibility="{Binding LoginVM.ErrorBanner,
+                    Converter={StaticResource StringToVisibilityConverter}}">
+            <TextBlock Text="{Binding LoginVM.ErrorBanner}"
+                       Foreground="White" FontSize="12"/>
+        </Border>
+
+        <!-- Row 2: Nav rail + content ========================== -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>  <!-- Nav rail -->
+                <ColumnDefinition Width="*"/>    <!-- Content -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Nav rail -->
+            <Border Grid.Column="0" Background="#1A2040">
+                <StackPanel Margin="0,12,0,0">
+
+                    <Button Content="¦  Welcome"
+                            Command="{Binding NavLoginCommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsLoginActive}"/>
+
+                    <Separator Margin="12,8" Background="#333D5A"/>
+
+                    <TextBlock Text="FREIGHT SCREENS"
+                               Foreground="#555E7A" FontSize="9" FontWeight="Bold"
+                               Margin="16,4,0,8"/>
+
+                    <Button Content="FXF3A  Discounts"
+                            Command="{Binding NavFXF3ACommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF3AActive}"
+                            ToolTip="Customer Discount Items"/>
+                    <Button Content="FXF3B  State/Term"
+                            Command="{Binding NavFXF3BCommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF3BActive}"
+                            ToolTip="Discounts by State/Terminal"/>
+                    <Button Content="FXF3C  Geography"
+                            Command="{Binding NavFXF3CCommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF3CActive}"
+                            ToolTip="Customer Geography Discounts"/>
+                    <Button Content="FXF3D  Products"
+                            Command="{Binding NavFXF3DCommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF3DActive}"
+                            ToolTip="Customer Product Discounts"/>
+                    <Button Content="FXF3E  Rates"
+                            Command="{Binding NavFXF3ECommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF3EActive}"
+                            ToolTip="Customer Rates"/>
+                    <Button Content="FXF3F  Disc/Adj"
+                            Command="{Binding NavFXF3FCommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF3FActive}"
+                            ToolTip="Customer Discounts/Adjustments"/>
+                    <Button Content="FXF3G  Charges"
+                            Command="{Binding NavFXF3GCommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF3GActive}"
+                            ToolTip="Customer Charges/Allowances"/>
+
+                    <Separator Margin="12,8" Background="#333D5A"/>
+
+                    <TextBlock Text="ADDITIONAL SCREENS"
+                               Foreground="#555E7A" FontSize="9" FontWeight="Bold"
+                               Margin="16,4,0,8"/>
+
+                    <Button Content="FXF3J  Copy Acct"
+                            Command="{Binding NavFXF3JCommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF3JActive}"
+                            ToolTip="Copy Customer/National Account Info"/>
+                    <Button Content="FXF3K  State Matrix"
+                            Command="{Binding NavFXF3KCommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF3KActive}"
+                            ToolTip="Cust/Nat'l Acct State Matrix"/>
+                    <Button Content="FXF3M  HUnit Allow"
+                            Command="{Binding NavFXF3MCommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF3MActive}"
+                            ToolTip="Cust/Nat'l Acct Handling Unit Allowance"/>
+                    <Button Content="FXF3N  Unit Rates"
+                            Command="{Binding NavFXF3NCommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF3NActive}"
+                            ToolTip="Cust/Nat'l Acct Unit Rates"/>
+                    <Button Content="FXF4M  Earned Disc"
+                            Command="{Binding NavFXF4MCommand}"
+                            Style="{StaticResource NavItemStyle}"
+                            Tag="{Binding IsFXF4MActive}"
+                            ToolTip="Earned Discount"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Content area — swaps UserControl via DataTemplates -->
+            <ContentControl Grid.Column="1"
+                            Content="{Binding CurrentView}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:LoginViewModel}">
+                        <views:LoginView/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF3A_ViewModel}">
+                        <views:FXF3A_View/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF3B_ViewModel}">
+                        <views:FXF3B_View/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF3C_ViewModel}">
+                        <views:FXF3C_View/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF3D_ViewModel}">
+                        <views:FXF3D_View/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF3E_ViewModel}">
+                        <views:FXF3E_View/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF3F_ViewModel}">
+                        <views:FXF3F_View/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF3G_ViewModel}">
+                        <views:FXF3G_View/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF3J_ViewModel}">
+                        <views:FXF3J_View/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF3K_ViewModel}">
+                        <views:FXF3K_View/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF3M_ViewModel}">
+                        <views:FXF3M_View/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF3N_ViewModel}">
+                        <views:FXF3N_View/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:FXF4M_ViewModel}">
+                        <views:FXF4M_View/>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
+
+        </Grid>
+    </Grid>
+</Window>

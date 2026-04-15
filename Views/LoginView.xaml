@@ -1,0 +1,304 @@
+<UserControl x:Class="Views.LoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F0F2F5">
+
+    <UserControl.Resources>
+        <ResourceDictionary Source="/Resources/Styles.xaml"/>
+    </UserControl.Resources>
+
+    <!-- Vertically + horizontally centered login card -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="500"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Row="1" Grid.Column="1"
+                Background="White"
+                BorderBrush="#DDE1EB" BorderThickness="1"
+                Padding="40,32">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="18" ShadowDepth="2"
+                                  Color="#888888" Opacity="0.12"/>
+            </Border.Effect>
+
+            <StackPanel>
+
+                <!-- Header -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <Border Width="36" Height="36" Background="#0F1C3F"
+                            CornerRadius="4" Margin="0,0,12,0">
+                        <TextBlock Text="FX" Foreground="White"
+                                   FontFamily="Calibri" FontSize="14"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="FXF3A Mainframe Tool"
+                                   FontFamily="Calibri" FontSize="18"
+                                   FontWeight="Bold" Foreground="#0F1C3F"/>
+                        <TextBlock Text="FedEx Freight CICS Pricing System"
+                                   FontFamily="Calibri" FontSize="11"
+                                   Foreground="#555E7A"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Separator Background="#DDE1EB" Margin="0,12,0,20"/>
+
+                <!-- Connection Parameters section -->
+                <TextBlock Text="CONNECTION PARAMETERS"
+                           FontFamily="Calibri" FontSize="9" FontWeight="Bold"
+                           Foreground="#555E7A"
+                           Margin="0,0,0,12"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="34"/>
+                        <RowDefinition Height="34"/>
+                        <RowDefinition Height="34"/>
+                        <RowDefinition Height="34"/>
+                        <RowDefinition Height="34"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Row 0: Host:Port -->
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               Text="Host : Port"
+                               FontFamily="Calibri" FontSize="12" Foreground="#333D5A"
+                               VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="0" Grid.Column="1"
+                             Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource FormTextBoxStyle}"
+                             ToolTip="TN3270 host and port, e.g. mainframe.example.com:23"/>
+
+                    <!-- Row 1: System + Timeout -->
+                    <TextBlock Grid.Row="1" Grid.Column="0"
+                               Text="MF System"
+                               FontFamily="Calibri" FontSize="12" Foreground="#333D5A"
+                               VerticalAlignment="Center"/>
+                    <Grid Grid.Row="1" Grid.Column="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding SystemCode, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource FormTextBoxStyle}"
+                                 Margin="0,0,8,0"
+                                 ToolTip="CICS system code, e.g. FDXF"/>
+                        <TextBlock Grid.Column="2"
+                                   Text="Timeout (ms)"
+                                   FontFamily="Calibri" FontSize="11" Foreground="#555E7A"
+                                   VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBox Grid.Column="3"
+                                 Text="{Binding Timeout, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource FormTextBoxStyle}"
+                                 ToolTip="Screen wait timeout in milliseconds"/>
+                    </Grid>
+
+                    <!-- Row 2: Terminal ID -->
+                    <TextBlock Grid.Row="2" Grid.Column="0"
+                               Text="Terminal ID"
+                               FontFamily="Calibri" FontSize="12" Foreground="#333D5A"
+                               VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="2" Grid.Column="1"
+                             Text="{Binding UidT, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource FormTextBoxStyle}"
+                             ToolTip="TN3270 terminal user ID"/>
+
+                    <!-- Row 3: Logility ID -->
+                    <TextBlock Grid.Row="3" Grid.Column="0"
+                               Text="Logility ID"
+                               FontFamily="Calibri" FontSize="12" Foreground="#333D5A"
+                               VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="3" Grid.Column="1"
+                             Text="{Binding UidL, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource FormTextBoxStyle}"
+                             ToolTip="Logility pricing system user ID"/>
+
+                    <!-- Row 4: RSF Path + Browse -->
+                    <TextBlock Grid.Row="4" Grid.Column="0"
+                               Text="RSF Path"
+                               FontFamily="Calibri" FontSize="12" Foreground="#333D5A"
+                               VerticalAlignment="Center"/>
+                    <DockPanel Grid.Row="4" Grid.Column="1">
+                        <Button DockPanel.Dock="Right"
+                                Content="Browse..."
+                                Command="{Binding BrowseRsfCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Width="72" Height="28" Margin="6,0,0,0"/>
+                        <TextBox Text="{Binding RsfPath, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource FormTextBoxStyle}"
+                                 ToolTip="Full path to fxf3270.rsf screen layout file"/>
+                    </DockPanel>
+                </Grid>
+
+                <!-- Credentials section -->
+                <TextBlock Text="CREDENTIALS"
+                           FontFamily="Calibri" FontSize="9" FontWeight="Bold"
+                           Foreground="#555E7A" Margin="0,20,0,12"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="34"/>
+                        <RowDefinition Height="34"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               Text="Terminal Pwd"
+                               FontFamily="Calibri" FontSize="12" Foreground="#333D5A"
+                               VerticalAlignment="Center"/>
+                    <PasswordBox Grid.Row="0" Grid.Column="1"
+                                 x:Name="_pwdT"
+                                 Height="28"
+                                 FontFamily="Calibri" FontSize="12"
+                                 Padding="8,0"
+                                 BorderBrush="#DDE1EB" BorderThickness="1"
+                                 VerticalContentAlignment="Center"
+                                 PasswordChar="●"
+                                 ToolTip="Terminal (TN3270) logon password"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0"
+                               Text="Logility Pwd"
+                               FontFamily="Calibri" FontSize="12" Foreground="#333D5A"
+                               VerticalAlignment="Center"/>
+                    <PasswordBox Grid.Row="1" Grid.Column="1"
+                                 x:Name="_pwdL"
+                                 Height="28"
+                                 FontFamily="Calibri" FontSize="12"
+                                 Padding="8,0"
+                                 BorderBrush="#DDE1EB" BorderThickness="1"
+                                 VerticalContentAlignment="Center"
+                                 PasswordChar="●"
+                                 ToolTip="Logility pricing system password"/>
+                </Grid>
+
+                <!-- Error banner -->
+                <Border Margin="0,12,0,0" Padding="10,7"
+                        Background="#FEE2E2" CornerRadius="4"
+                        Visibility="{Binding ErrorBanner,
+                            Converter={StaticResource StringToVisibilityConverter}}">
+                    <TextBlock Text="{Binding ErrorBanner}"
+                               FontFamily="Calibri" FontSize="11"
+                               Foreground="#7F1D1D" TextWrapping="Wrap"/>
+                </Border>
+
+                <!-- Connect button (code-behind reads PasswordBoxes) -->
+                <Button x:Name="_formConnectBtn"
+                        Content="CONNECT TO MAINFRAME"
+                        Click="FormConnect_Click"
+                        IsEnabled="{Binding CanConnect}"
+                        Height="40" Margin="0,16,0,0"
+                        FontFamily="Calibri" FontSize="13" FontWeight="Bold"
+                        Foreground="White" Background="#0F1C3F"
+                        BorderThickness="0" Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                                CornerRadius="4">
+                                            <ContentPresenter HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#1A2A5A"/>
+                                            </Trigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="#9AA0B2"/>
+                                                <Setter Property="Foreground" Value="#DDDDDD"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <!-- Busy indicator -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
+                            Margin="0,8,0,0"
+                            Visibility="{Binding IsBusy,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Text="Connecting..."
+                               FontFamily="Calibri" FontSize="11"
+                               Foreground="#555E7A"/>
+                </StackPanel>
+
+                <!-- Connected status + Disconnect -->
+                <Separator Background="#DDE1EB" Margin="0,16,0,12"
+                           Visibility="{Binding IsConnected,
+                               Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                <StackPanel Visibility="{Binding IsConnected,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Ellipse Width="10" Height="10" Margin="0,0,8,0" VerticalAlignment="Center">
+                            <Ellipse.Fill>
+                                <SolidColorBrush Color="{Binding IsConnected,
+                                    Converter={StaticResource BoolToStatusColorConverter}}"/>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                        <TextBlock FontFamily="Calibri" FontSize="12" Foreground="#1A7A40"
+                                   FontWeight="SemiBold" VerticalAlignment="Center">
+                            <Run Text="Connected"/>
+                            <Run Text=" — navigate to a screen from the left rail"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <Button Content="DISCONNECT"
+                            Command="{Binding DisconnectCommand}"
+                            Height="34"
+                            FontFamily="Calibri" FontSize="12" FontWeight="Bold"
+                            Foreground="White" Background="#AA2222"
+                            BorderThickness="0" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="4">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#CC3333"/>
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Background" Value="#9AA0B2"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

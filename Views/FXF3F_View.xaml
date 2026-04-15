@@ -1,0 +1,425 @@
+﻿<UserControl x:Class="Views.FXF3F_View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:FXF3A_Tool.ViewModels"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             Background="#F0F2F5">
+
+    <UserControl.Resources>
+        <ResourceDictionary Source="/Resources/Styles.xaml"/>
+    </UserControl.Resources>
+
+    <!-- DataContext is set automatically by MainWindow DataTemplate binding -->
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- Screen title -->
+            <RowDefinition Height="Auto"/>  <!-- Banner message -->
+            <RowDefinition Height="Auto"/>  <!-- Toolbar -->
+            <RowDefinition Height="Auto"/>  <!-- Progress bar -->
+            <RowDefinition Height="2*"/>    <!-- Batch DataGrid -->
+            <RowDefinition Height="Auto"/>  <!-- Results header -->
+            <RowDefinition Height="*"/>     <!-- Results DataGrid -->
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Title (no quick-load bar for FXF3F) ==========- -->
+        <Border Grid.Row="0" Background="#0F1C3F" Padding="12,8">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="FXF3F — Customer Discounts/Adjustments"
+                           Foreground="White" FontFamily="Calibri"
+                           FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text="DSNM3PP-3F  |  GET · ADD · CHANGE · CANCEL · DELETE"
+                           Foreground="#8899BB" FontFamily="Calibri" FontSize="10" Margin="0,2,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 1: Banner message ================================- -->
+        <Border Grid.Row="1" Padding="12,5"
+                Visibility="{Binding BannerMessage,
+                    Converter={StaticResource StringToVisibilityConverter}}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="#D1FAE5"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding BannerIsError}" Value="True">
+                            <Setter Property="Background" Value="#FEE2E2"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding BannerMessage}"
+                       FontFamily="Calibri" FontSize="11"
+                       Foreground="#1E2A3B"/>
+        </Border>
+
+        <!-- Row 2: Toolbar ======================================- -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#DDE1EB"
+                BorderThickness="0,0,0,1" Padding="10,6">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="?  Run Batch"
+                        Command="{Binding RunBatchCommand}"
+                        Style="{StaticResource RunButtonStyle}"
+                        Margin="0,0,8,0"/>
+                <Button Content="+  Add Row"
+                        Command="{Binding AddRowCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="0,0,8,0" Width="80"/>
+                <Button Content="?  Clear Batch"
+                        Command="{Binding ClearBatchCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="0,0,8,0" Width="90"
+                        Background="#883333"/>
+                <Button Content="Import CSV"
+                        Command="{Binding LoadCsvCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="8,0,0,0" Width="100"/>
+                <Button Content="Select All"
+                        Command="{Binding SelectAllCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="4,0,0,0" Width="80"/>
+                <Separator Width="1" Background="#DDE1EB" Margin="4,0"/>
+                <Button Content="?  Export Results"
+                        Command="{Binding ExportResultsCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="8,0,0,0" Width="110"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 3: Progress bar ================================== -->
+        <Border Grid.Row="3" Background="#EEF0F8" Padding="10,4"
+                Visibility="{Binding IsBusy,
+                    Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ProgressBar Grid.Column="0" Height="8"
+                             Minimum="0"
+                             Maximum="{Binding ProgressTotal}"
+                             Value="{Binding ProgressCurrent}"
+                             Foreground="#460073" Background="#DDE1EB"
+                             BorderThickness="0"/>
+                <TextBlock Grid.Column="1"
+                           Text="{Binding ProgressText}"
+                           FontFamily="Calibri" FontSize="10"
+                           Foreground="#555E7A" Margin="10,0,0,0"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- Row 4: Batch DataGrid ================================ -->
+        <DataGrid Grid.Row="4"
+                  ItemsSource="{Binding BatchRows}"
+                  Style="{StaticResource BatchDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource DataGridHeaderStyle}"
+                  Margin="0">
+
+            <DataGrid.Columns>
+
+                <!-- Row selection checkbox -->
+                <DataGridTemplateColumn Header="" Width="30" CanUserSort="False" CanUserResize="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Frozen key columns -->
+                <DataGridComboBoxColumn Header="ACTION" Width="90"
+                    SelectedValueBinding="{Binding Action, UpdateSourceTrigger=PropertyChanged}"
+                    >
+                    <DataGridComboBoxColumn.ItemsSource>
+                        <x:Array Type="sys:String">
+                            <sys:String>GET</sys:String>
+                            <sys:String>ADD</sys:String>
+                            <sys:String>CHANGE</sys:String>
+                            <sys:String>CANCEL</sys:String>
+                            <sys:String>DELETE</sys:String>
+                        </x:Array>
+                    </DataGridComboBoxColumn.ItemsSource>
+                </DataGridComboBoxColumn>
+
+                <DataGridComboBoxColumn Header="CARRIER" Width="80"
+                    SelectedValueBinding="{Binding Carrier, UpdateSourceTrigger=PropertyChanged}"
+                    >
+                    <DataGridComboBoxColumn.ItemsSource>
+                        <x:Array Type="sys:String">
+                            <sys:String>ARFW</sys:String>
+                            <sys:String>VIKN</sys:String>
+                            <sys:String>FXFM</sys:String>
+                            <sys:String>FXNL</sys:String>
+                            <sys:String>FXFC_INTRACANADA</sys:String>
+                            <sys:String>FXFC_CROSSBORDER</sys:String>
+                            <sys:String>DFLT</sys:String>
+                        </x:Array>
+                    </DataGridComboBoxColumn.ItemsSource>
+                </DataGridComboBoxColumn>
+
+                <DataGridComboBoxColumn Header="CUST TYPE" Width="80"
+                    SelectedValueBinding="{Binding CustType, UpdateSourceTrigger=PropertyChanged}"
+                    >
+                    <DataGridComboBoxColumn.ItemsSource>
+                        <x:Array Type="sys:String">
+                            <sys:String>CC</sys:String>
+                            <sys:String>CN</sys:String>
+                            <sys:String>NC</sys:String>
+                            <sys:String>NN</sys:String>
+                            <sys:String>EN</sys:String>
+                            <sys:String>FA</sys:String>
+                            <sys:String>SG</sys:String>
+                            <sys:String>GR</sys:String>
+                            <sys:String>CY</sys:String>
+                            <sys:String>DV</sys:String>
+                            <sys:String>GE</sys:String>
+                        </x:Array>
+                    </DataGridComboBoxColumn.ItemsSource>
+                </DataGridComboBoxColumn>
+
+                <DataGridTextColumn Header="ACCOUNT"     Width="110" 
+                    Binding="{Binding Account,      UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Screen-specific key columns -->
+                <DataGridTextColumn Header="AUTHORITY"   Width="90"
+                    Binding="{Binding Authority,    UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="NUMBER"      Width="80"
+                    Binding="{Binding Number,       UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="ITEM"        Width="90"
+                    Binding="{Binding Item,         UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="PART"        Width="70"
+                    Binding="{Binding Part,         UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Flags -->
+                <DataGridTemplateColumn Header="REL?" Width="50" CanUserResize="False" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedItem="{Binding Release, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      BorderThickness="0" Padding="2,0" HorizontalContentAlignment="Center">
+                                <sys:String>N</sys:String>
+                                <sys:String>Y</sys:String>
+                            </ComboBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="CANCEL_DATE" Width="90"
+                    Binding="{Binding CancelDate,   UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Discount/Adjustment header fields -->
+                <DataGridTextColumn Header="ADJ_TYPE"    Width="80"
+                    Binding="{Binding AdjType,      UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="CONDITION"   Width="90"
+                    Binding="{Binding Condition,    UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="PREPD_COLL"  Width="80"
+                    Binding="{Binding PrepdOrCollect, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="EFF_DATE"    Width="80"
+                    Binding="{Binding EffDate,      UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="CAN_DATE"    Width="80"
+                    Binding="{Binding CanDateItem,  UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="COMMENTS"    Width="120"
+                    Binding="{Binding Comments,     UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="APP_RULE"    Width="80"
+                    Binding="{Binding AppRule,      UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Discount/Adjustment rate row 1 -->
+                <DataGridTextColumn Header="RT1_WGT"        Width="70"
+                    Binding="{Binding RT1Wgt,          UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT1_DIR"        Width="70"
+                    Binding="{Binding RT1DiscAdjDir,   UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT1_UNITS"      Width="70"
+                    Binding="{Binding RT1DiscAdjUnits, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT1_DISC_TYPE"  Width="80"
+                    Binding="{Binding RT1DiscAdjType,  UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT1_AMT"        Width="70"
+                    Binding="{Binding RT1Amt,          UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Discount/Adjustment rate row 2 -->
+                <DataGridTextColumn Header="RT2_WGT"        Width="70"
+                    Binding="{Binding RT2Wgt,          UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT2_DIR"        Width="70"
+                    Binding="{Binding RT2DiscAdjDir,   UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT2_UNITS"      Width="70"
+                    Binding="{Binding RT2DiscAdjUnits, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT2_DISC_TYPE"  Width="80"
+                    Binding="{Binding RT2DiscAdjType,  UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT2_AMT"        Width="70"
+                    Binding="{Binding RT2Amt,          UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Discount/Adjustment rate row 3 -->
+                <DataGridTextColumn Header="RT3_WGT"        Width="70"
+                    Binding="{Binding RT3Wgt,          UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT3_DIR"        Width="70"
+                    Binding="{Binding RT3DiscAdjDir,   UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT3_UNITS"      Width="70"
+                    Binding="{Binding RT3DiscAdjUnits, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT3_DISC_TYPE"  Width="80"
+                    Binding="{Binding RT3DiscAdjType,  UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT3_AMT"        Width="70"
+                    Binding="{Binding RT3Amt,          UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Discount/Adjustment rate row 4 -->
+                <DataGridTextColumn Header="RT4_WGT"        Width="70"
+                    Binding="{Binding RT4Wgt,          UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT4_DIR"        Width="70"
+                    Binding="{Binding RT4DiscAdjDir,   UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT4_UNITS"      Width="70"
+                    Binding="{Binding RT4DiscAdjUnits, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT4_DISC_TYPE"  Width="80"
+                    Binding="{Binding RT4DiscAdjType,  UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT4_AMT"        Width="70"
+                    Binding="{Binding RT4Amt,          UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Discount/Adjustment rate row 5 -->
+                <DataGridTextColumn Header="RT5_WGT"        Width="70"
+                    Binding="{Binding RT5Wgt,          UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT5_DIR"        Width="70"
+                    Binding="{Binding RT5DiscAdjDir,   UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT5_UNITS"      Width="70"
+                    Binding="{Binding RT5DiscAdjUnits, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT5_DISC_TYPE"  Width="80"
+                    Binding="{Binding RT5DiscAdjType,  UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT5_AMT"        Width="70"
+                    Binding="{Binding RT5Amt,          UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Discount/Adjustment rate row 6 -->
+                <DataGridTextColumn Header="RT6_WGT"        Width="70"
+                    Binding="{Binding RT6Wgt,          UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT6_DIR"        Width="70"
+                    Binding="{Binding RT6DiscAdjDir,   UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT6_UNITS"      Width="70"
+                    Binding="{Binding RT6DiscAdjUnits, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT6_DISC_TYPE"  Width="80"
+                    Binding="{Binding RT6DiscAdjType,  UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT6_AMT"        Width="70"
+                    Binding="{Binding RT6Amt,          UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Discount/Adjustment rate row 7 -->
+                <DataGridTextColumn Header="RT7_WGT"        Width="70"
+                    Binding="{Binding RT7Wgt,          UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT7_DIR"        Width="70"
+                    Binding="{Binding RT7DiscAdjDir,   UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT7_UNITS"      Width="70"
+                    Binding="{Binding RT7DiscAdjUnits, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT7_DISC_TYPE"  Width="80"
+                    Binding="{Binding RT7DiscAdjType,  UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT7_AMT"        Width="70"
+                    Binding="{Binding RT7Amt,          UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Discount/Adjustment rate row 8 -->
+                <DataGridTextColumn Header="RT8_WGT"        Width="70"
+                    Binding="{Binding RT8Wgt,          UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT8_DIR"        Width="70"
+                    Binding="{Binding RT8DiscAdjDir,   UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT8_UNITS"      Width="70"
+                    Binding="{Binding RT8DiscAdjUnits, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT8_DISC_TYPE"  Width="80"
+                    Binding="{Binding RT8DiscAdjType,  UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT8_AMT"        Width="70"
+                    Binding="{Binding RT8Amt,          UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Discount/Adjustment rate row 9 -->
+                <DataGridTextColumn Header="RT9_WGT"        Width="70"
+                    Binding="{Binding RT9Wgt,          UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT9_DIR"        Width="70"
+                    Binding="{Binding RT9DiscAdjDir,   UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT9_UNITS"      Width="70"
+                    Binding="{Binding RT9DiscAdjUnits, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT9_DISC_TYPE"  Width="80"
+                    Binding="{Binding RT9DiscAdjType,  UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT9_AMT"        Width="70"
+                    Binding="{Binding RT9Amt,          UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Discount/Adjustment rate row 10 -->
+                <DataGridTextColumn Header="RT10_WGT"       Width="70"
+                    Binding="{Binding RT10Wgt,         UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT10_DIR"       Width="70"
+                    Binding="{Binding RT10DiscAdjDir,  UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT10_UNITS"     Width="70"
+                    Binding="{Binding RT10DiscAdjUnits, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT10_DISC_TYPE" Width="80"
+                    Binding="{Binding RT10DiscAdjType, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="RT10_AMT"       Width="70"
+                    Binding="{Binding RT10Amt,         UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- Audit fields -->
+                <DataGridTextColumn Header="LAST_MAINT"  Width="90"
+                    Binding="{Binding LastMaintDate, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="OPERATOR"    Width="80"
+                    Binding="{Binding OperatorId,   UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="REVISION"    Width="70"
+                    Binding="{Binding Revision,     UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- STATUS — always last -->
+                <DataGridTemplateColumn Header="STATUS" Width="180">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding StatusIcon}"
+                                       ToolTip="{Binding StatusMessage}"
+                                       FontFamily="Calibri" FontSize="11"
+                                       VerticalAlignment="Center"
+                                       Padding="4,0"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Row 5: Results section header ======================- -->
+        <Border Grid.Row="5" Background="#1A2E5A" Padding="10,6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="GET Results"
+                               Foreground="White" FontFamily="Calibri"
+                               FontSize="12" FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Results.Count, StringFormat=' ({0} rows)'}"
+                               Foreground="#8899BB" FontFamily="Calibri" FontSize="11"
+                               VerticalAlignment="Center" Margin="4,0,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="? Export"
+                            Command="{Binding ExportResultsCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="70" Height="24" Margin="0,0,6,0"/>
+                    <Button Content="? Clear"
+                            Command="{Binding ClearResultsCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="60" Height="24" Background="#883333"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Row 6: Results DataGrid ============================- -->
+        <DataGrid Grid.Row="6"
+                  ItemsSource="{Binding Results}"
+                  IsReadOnly="True"
+                  Style="{StaticResource BatchDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource DataGridHeaderStyle}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Account"        Width="110" Binding="{Binding Account}"/>
+                <DataGridTextColumn Header="Authority"      Width="90"  Binding="{Binding Authority}"/>
+                <DataGridTextColumn Header="Number"         Width="80"  Binding="{Binding Number}"/>
+                <DataGridTextColumn Header="Item"           Width="90"  Binding="{Binding Item}"/>
+                <DataGridTextColumn Header="Part"           Width="70"  Binding="{Binding Part}"/>
+                <DataGridTextColumn Header="AdjType"        Width="80"  Binding="{Binding AdjType}"/>
+                <DataGridTextColumn Header="Condition"      Width="90"  Binding="{Binding Condition}"/>
+                <DataGridTextColumn Header="PrepdOrCollect" Width="80"  Binding="{Binding PrepdOrCollect}"/>
+                <DataGridTextColumn Header="AppRule"        Width="80"  Binding="{Binding AppRule}"/>
+                <DataGridTextColumn Header="RT1Wgt"         Width="70"  Binding="{Binding RT1Wgt}"/>
+                <DataGridTextColumn Header="RT1DiscAdjDir"  Width="70"  Binding="{Binding RT1DiscAdjDir}"/>
+                <DataGridTextColumn Header="RT1DiscAdjUnits" Width="70" Binding="{Binding RT1DiscAdjUnits}"/>
+                <DataGridTextColumn Header="RT1Amt"         Width="70"  Binding="{Binding RT1Amt}"/>
+                <DataGridTextColumn Header="LastMaintDate"  Width="90"  Binding="{Binding LastMaintDate}"/>
+                <DataGridTextColumn Header="OperatorId"     Width="80"  Binding="{Binding OperatorId}"/>
+                <DataGridTextColumn Header="Status"         Width="120" Binding="{Binding Status}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
+</UserControl>

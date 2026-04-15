@@ -1,0 +1,35 @@
+# Build output
+bin/
+obj/
+
+# Deploy DLLs (proprietary — do not commit)
+deploy/
+
+# VS / MSBuild
+*.user
+*.suo
+*.cache
+*.vsidx
+.vs/
+My Project/Application.Designer.vb
+My Project/Resources.Designer.vb
+My Project/Settings.Designer.vb
+
+# Scratch / fix scripts
+fix_*.ps1
+cleanup_*.ps1
+fix_nameof*.ps1
+fix_vb12.ps1
+
+# Temp project file
+FXF3A_Tool_maxdkjsd_wpftmp.vbproj
+
+# Codebase zip (large source archive)
+Codebase/
+
+# Claude specs working folder
+Claude specs/
+
+# Generated docs
+FXF3A_Tool_Technical_Workflow.docx
+gen_tech_doc.py

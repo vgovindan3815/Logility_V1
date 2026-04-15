@@ -1,0 +1,67 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Debug",
+      "type": "shell",
+      "command": "msbuild",
+      "args": [
+        "FXF3A_Tool.vbproj",
+        "/p:Configuration=Debug",
+        "/p:Platform=AnyCPU",
+        "/v:minimal"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build Release",
+      "type": "shell",
+      "command": "msbuild",
+      "args": [
+        "FXF3A_Tool.vbproj",
+        "/p:Configuration=Release",
+        "/p:Platform=AnyCPU",
+        "/v:minimal"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Run Debug",
+      "type": "shell",
+      "command": "bin\\Debug\\FXF3A_Tool.exe",
+      "dependsOn": "Build Debug",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "command": "msbuild",
+      "args": [
+        "FXF3A_Tool.vbproj",
+        "/t:Clean"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    }
+  ]
+}
