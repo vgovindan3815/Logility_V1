@@ -1899,11 +1899,11 @@ Namespace ViewModels
                 End Sub)
 
             Catch ex As AccountNotFoundException
-                Application.Current.Dispatcher.InvokeAsync(Sub()
+                Application.Current.Dispatcher.Invoke(Sub()
                     BannerMessage = "Account not found: " & _quickAccount
                 End Sub)
             Catch ex As Exception
-                Application.Current.Dispatcher.InvokeAsync(Sub()
+                Application.Current.Dispatcher.Invoke(Sub()
                     BannerMessage = "Error: " & ex.Message
                 End Sub)
             Finally

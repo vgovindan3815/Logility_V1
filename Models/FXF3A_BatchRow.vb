@@ -165,7 +165,7 @@ Namespace Models
         End Property
 
         ' ── Item attributes ──────────────────────────────────────────
-        Private _currency As String = "" : Public Property Currency As String
+        Private _currency As String = "USD" : Public Property Currency As String
             Get
                 Return _currency
             End Get
@@ -774,7 +774,12 @@ Namespace Models
                     Tuple.Create(_disc3, _minChg3, _maxWgt3, _floorMin3, _effDate3, _canDate3)}
                 Dim disc As String = tpl.Item1
                 Dim eff As String = tpl.Item5
+                ' Skip row if both disc and eff are empty, OR if eff date is missing
+                ' (screen requires a valid effective date on every discount row)
                 If String.IsNullOrWhiteSpace(disc) AndAlso String.IsNullOrWhiteSpace(eff) Then
+                    Continue For
+                End If
+                If String.IsNullOrWhiteSpace(eff) Then
                     Continue For
                 End If
                 Dim row As New FXF3A.discountTable

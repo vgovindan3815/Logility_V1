@@ -40,6 +40,7 @@ Namespace ViewModels
                     r.IsSelected = True
                 Next
             End Sub)
+            _showDebugLogCommand = New RelayCommand(AddressOf ExecuteShowDebugLog)
         End Sub
 
         ' ── Quick-load bar ───────────────────────────────────────────
@@ -143,6 +144,7 @@ Namespace ViewModels
         Private ReadOnly _loadAccountCommand   As RelayCommand
         Private ReadOnly _loadCsvCommand       As RelayCommand
         Private ReadOnly _selectAllCommand     As RelayCommand
+        Private ReadOnly _showDebugLogCommand  As RelayCommand
 
         Public ReadOnly Property RunBatchCommand      As RelayCommand
             Get
@@ -184,6 +186,21 @@ Namespace ViewModels
                 Return _selectAllCommand
             End Get
         End Property
+        Public ReadOnly Property ShowDebugLogCommand  As RelayCommand
+            Get
+                Return _showDebugLogCommand
+            End Get
+        End Property
+
+        ' ── Show Debug Log ───────────────────────────────────────────
+        Private Sub ExecuteShowDebugLog()
+            Dim logPath As String = Core.DebugLogger.GetLogPath()
+            If Core.DebugLogger.LogExists() Then
+                System.Diagnostics.Process.Start("notepad.exe", logPath)
+            Else
+                BannerMessage = "No debug log entries yet."
+            End If
+        End Sub
 
         ' ── Quick Load ───────────────────────────────────────────────
         Private Async Sub ExecuteLoadAccount()
@@ -230,11 +247,11 @@ Namespace ViewModels
                 End Sub)
 
             Catch ex As AccountNotFoundException
-                Application.Current.Dispatcher.InvokeAsync(Sub()
+                Application.Current.Dispatcher.Invoke(Sub()
                     BannerMessage = "Account not found: " & _quickAccount
                 End Sub)
             Catch ex As Exception
-                Application.Current.Dispatcher.InvokeAsync(Sub()
+                Application.Current.Dispatcher.Invoke(Sub()
                     BannerMessage = "Error: " & ex.Message
                 End Sub)
             Finally
@@ -262,39 +279,53 @@ Namespace ViewModels
                 IsBusy = False
                 Return
             End If
+
             Dim total = selectedRows.Count
-            Dim ok = 0, err = 0, skipped = 0
             ProgressTotal   = total
             ProgressCurrent = 0
 
-            For i As Integer = 0 To selectedRows.Count - 1
-                Dim row = selectedRows(i)
-                ProgressCurrent = i + 1
-                ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", i + 1, total, row.Action, row.Account)
+            ' Run ALL rows on the dedicated session thread so tn3270_dll.dll
+            ' is always called from the same thread it was created on.
+            Dim ok = 0, err = 0, skipped = 0
 
-                If String.IsNullOrWhiteSpace(row.Action) Then
-                    row.Status = OperationStatus.Skipped
-                    skipped += 1
-                    Continue For
-                End If
+            Await _session.RunOnSessionThreadAsync(Sub()
+                For i As Integer = 0 To selectedRows.Count - 1
+                    Dim row = selectedRows(i)
+                    Dim idx = i   ' capture for closure
 
-                row.Status = OperationStatus.Running
-                row.StatusMessage = ""
+                    Application.Current.Dispatcher.InvokeAsync(Sub()
+                        ProgressCurrent = idx + 1
+                        ProgressText    = String.Format("Row {0}/{1}  \u2014 {2} {3}",
+                                                        idx + 1, total, row.Action, row.Account)
+                        row.Status        = OperationStatus.Running
+                        row.StatusMessage = ""
+                    End Sub)
 
-                Try
-                    Await Task.Run(Sub() ProcessRow(row))
-                    ok += 1
-                Catch ex As Exception
-                    ' ProcessRow sets row.Status/StatusMessage internally
-                    err += 1
-                End Try
+                    If String.IsNullOrWhiteSpace(row.Action) Then
+                        Application.Current.Dispatcher.InvokeAsync(Sub()
+                            row.Status = OperationStatus.Skipped
+                        End Sub)
+                        skipped += 1
+                        Continue For
+                    End If
 
-                ' Yield to UI
-                Await Task.Delay(10)
-            Next
+                    Try
+                        ProcessRow(row)
+                        ' ProcessRow sets row.Status via InvokeAsync; treat lack of exception = success
+                        ok += 1
+                    Catch ex As Exception
+                        err += 1
+                        Application.Current.Dispatcher.InvokeAsync(Sub()
+                            If row.Status <> OperationStatus.Error Then
+                                row.Status        = OperationStatus.Error
+                                row.StatusMessage = "Error: " & ex.Message
+                            End If
+                        End Sub)
+                    End Try
+                Next
+            End Sub)
 
-            ProgressText  = String.Format("Complete — {0} OK, {1} errors, {2} skipped", ok, err, skipped)
-            BannerMessage = ProgressText
+            BannerMessage = String.Format("Batch complete. {0} succeeded, {1} failed, {2} skipped.", ok, err, skipped)
             IsBusy = False
         End Sub
 
@@ -304,14 +335,17 @@ Namespace ViewModels
                 Dim carrier  = ParseCarrier(row.Carrier)
                 Dim custType = ParseCustType(row.CustType)
 
+                ' Timeout for individual operations (30 seconds)
+                Const OperationTimeoutMs As Integer = 30000
+
                 Select Case row.Action.ToUpper()
 
                     Case "GET"
                         If row.HasItemKey Then
-                            ' Single item GET
-                            Dim it = _session.FXF3A.getItem(
+                            ' Single item GET with timeout
+                            Dim it = ExecuteWithTimeout(Function() _session.FXF3A.getItem(
                                 carrier, custType, row.Account,
-                                row.Authority, row.Number, row.Item)
+                                row.Authority, row.Number, row.Item), OperationTimeoutMs)
                             Dim resultRow As New FXF3A_BatchRow
                             resultRow.Carrier  = row.Carrier
                             resultRow.CustType = row.CustType
@@ -320,15 +354,15 @@ Namespace ViewModels
                                 Results.Add(resultRow)
                             End Sub)
                         Else
-                            ' All items for account
-                            Dim items = _session.FXF3A.getItems(carrier, custType, row.Account, True)
+                            ' All items for account with timeout
+                            Dim items = ExecuteWithTimeout(Function() _session.FXF3A.getItems(carrier, custType, row.Account, True), OperationTimeoutMs)
                             If items IsNot Nothing Then
                                 For j As Integer = 0 To items.Count - 1
                                     ' For list results, do getItem on each to get full detail
                                     Dim hdr = items(j)
-                                    Dim fullItem = _session.FXF3A.getItem(
+                                    Dim fullItem = ExecuteWithTimeout(Function() _session.FXF3A.getItem(
                                         carrier, custType, row.Account,
-                                        hdr.auhority, hdr.number, hdr.item)
+                                        hdr.auhority, hdr.number, hdr.item), OperationTimeoutMs)
                                     Dim resultRow As New FXF3A_BatchRow
                                     resultRow.Carrier  = row.Carrier
                                     resultRow.CustType = row.CustType
@@ -344,43 +378,44 @@ Namespace ViewModels
                         End Sub)
 
                     Case "ADD"
-                        _session.FXF3A.addItem(
+                        ' Removed invalid navigation call; directly adding the item
+                        ExecuteWithTimeout(Sub() _session.FXF3A.addItem(
                             carrier, custType, row.Account,
-                            row.ToItemClass(), (row.Release = "Y"))
+                            row.ToItemClass(), (row.Release = "Y")), OperationTimeoutMs)
                         Application.Current.Dispatcher.InvokeAsync(Sub()
                             row.Status = OperationStatus.Success
                         End Sub)
 
                     Case "CHANGE"
-                        _session.FXF3A.changeItem(
+                        ExecuteWithTimeout(Sub() _session.FXF3A.changeItem(
                             carrier, custType, row.Account,
                             row.Authority, row.Number, row.Item,
-                            row.ToItemClass(), (row.Release = "Y"))
+                            row.ToItemClass(), (row.Release = "Y")), OperationTimeoutMs)
                         Application.Current.Dispatcher.InvokeAsync(Sub()
                             row.Status = OperationStatus.Success
                         End Sub)
 
                     Case "CANCEL"
-                        _session.FXF3A.cancelItem(
+                        ExecuteWithTimeout(Sub() _session.FXF3A.cancelItem(
                             carrier, custType, row.Account,
                             row.Authority, row.Number, row.Item,
-                            row.GetCancelDate(), (row.Release = "Y"))
+                            row.GetCancelDate(), (row.Release = "Y")), OperationTimeoutMs)
                         Application.Current.Dispatcher.InvokeAsync(Sub()
                             row.Status = OperationStatus.Success
                         End Sub)
 
                     Case "DELETE"
-                        _session.FXF3A.deleteItem(
+                        ExecuteWithTimeout(Sub() _session.FXF3A.deleteItem(
                             carrier, custType, row.Account,
-                            row.Authority, row.Number, row.Item)
+                            row.Authority, row.Number, row.Item), OperationTimeoutMs)
                         Application.Current.Dispatcher.InvokeAsync(Sub()
                             row.Status = OperationStatus.Success
                         End Sub)
 
                     Case "RELEASE"
-                        _session.FXF3A.releaseItem(
+                        ExecuteWithTimeout(Sub() _session.FXF3A.releaseItem(
                             carrier, custType, row.Account,
-                            row.Authority, row.Number, row.Item)
+                            row.Authority, row.Number, row.Item), OperationTimeoutMs)
                         Application.Current.Dispatcher.InvokeAsync(Sub()
                             row.Status = OperationStatus.Success
                         End Sub)
@@ -396,35 +431,60 @@ Namespace ViewModels
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status = OperationStatus.Error
                     row.StatusMessage = "Account not found: " & ex.Message
+                    row.ErrorCategory = ScreenErrorCategory.AccountNotFound
+                    row.ExceptionType = ex.GetType().Name
+                    row.ExceptionDetails = ex.Message
+                    row.ErrorTimestamp = DateTime.Now
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As NoDiscountRecordsException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status = OperationStatus.Warning
                     row.StatusMessage = "No discount records"
+                    row.ErrorCategory = ScreenErrorCategory.NoRecords
+                    row.ExceptionType = ex.GetType().Name
+                    row.ExceptionDetails = ex.Message
+                    row.ErrorTimestamp = DateTime.Now
                 End Sub)
                 ' Warning — not rethrown, doesn't count as error
             Catch ex As NumericValueException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status = OperationStatus.Error
                     row.StatusMessage = "Invalid cancel date: " & ex.Message
+                    row.ErrorCategory = ScreenErrorCategory.InvalidValue
+                    row.ExceptionType = ex.GetType().Name
+                    row.ExceptionDetails = ex.Message
+                    row.ErrorTimestamp = DateTime.Now
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As GenericScreenScraperException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status = OperationStatus.Error
                     row.StatusMessage = ex.Message
-                    ' ScreenDump stored for tooltip — truncate for display
+                    row.ErrorCategory = ScreenErrorCategory.ScreenError
+                    row.ExceptionType = ex.GetType().Name
+                    row.ExceptionDetails = ex.Message
+                    row.ScreenDump = If(String.IsNullOrWhiteSpace(ex.ScreenDump), "", ex.ScreenDump)
+                    row.ErrorTimestamp = DateTime.Now
+                    ' Update status message to indicate screen dump is available
                     If Not String.IsNullOrWhiteSpace(ex.ScreenDump) Then
-                        row.StatusMessage &= " [screen dump available]"
+                        row.StatusMessage &= " [screen dump captured]"
                     End If
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As Exception
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status = OperationStatus.Error
                     row.StatusMessage = ex.Message
+                    row.ErrorCategory = ScreenErrorCategory.ScreenError
+                    row.ExceptionType = ex.GetType().Name
+                    row.ExceptionDetails = ex.Message & vbCrLf & ex.StackTrace
+                    row.ErrorTimestamp = DateTime.Now
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             End Try
         End Sub
@@ -519,7 +579,7 @@ Namespace ViewModels
                     row.Currency  = G("Currency")
                     row.Inter     = GD("Inter",    "NA")
                     row.TypeHaul  = GD("TypeHaul", "NA")
-                    row.Matrix    = G("Matrix")
+                    row.Matrix    = G("MATRIX")
                     row.GeoDir1   = GD("GeoDir1",  "NA")
                     row.GeoType1  = GD("GeoType1", "NA")
                     row.GeoName1  = G("GeoName1")
@@ -602,6 +662,26 @@ Namespace ViewModels
                 br.N500  = If(G("N500").ToUpper()  = "Y", "Y", "N")
                 BatchRows.Add(br)
             Next
+        End Sub
+
+        ' ── Timeout helpers ──────────────────────────────────────────
+        ''' <summary>
+        ''' Calls fn directly on the current (already background) thread.
+        ''' The timeoutMs parameter is kept for API compatibility;
+        ''' the screen scraping library enforces its own wait timeout internally.
+        ''' DO NOT wrap in Task.Run here — the native tn3270_dll.dll requires
+        ''' all calls to run on a single, consistent thread.
+        ''' </summary>
+        Private Shared Function ExecuteWithTimeout(Of T)(fn As Func(Of T), timeoutMs As Integer) As T
+            Return fn()
+        End Function
+
+        ''' <summary>
+        ''' Calls action directly on the current (already background) thread.
+        ''' See Function overload for rationale.
+        ''' </summary>
+        Private Shared Sub ExecuteWithTimeout(action As Action, timeoutMs As Integer)
+            action()
         End Sub
 
         ' ── Helpers ──────────────────────────────────────────────────

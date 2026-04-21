@@ -30,7 +30,13 @@ Namespace ViewModels
         End Sub
 
         ' ── Connection fields (persisted — no passwords) ─────────────
-        Private _host As String = "hostname:23"
+        Private Const DefaultHost As String = "c0040811.test.cloud.fedex.com:9000"
+        Private Const DefaultSystemCode As String = "FDXF"
+        Private Const DefaultUid As String = "1647111"
+        Private Shared ReadOnly DefaultRsfPath As String = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ScreenLayouts.xml")
+        Private Const DefaultTimeout As Integer = 30000
+
+        Private _host As String = DefaultHost
         Public Property Host As String
             Get
                 Return _host
@@ -42,7 +48,7 @@ Namespace ViewModels
             End Set
         End Property
 
-        Private _systemCode As String = "FDXF"
+        Private _systemCode As String = DefaultSystemCode
         Public Property SystemCode As String
             Get
                 Return _systemCode
@@ -52,7 +58,7 @@ Namespace ViewModels
             End Set
         End Property
 
-        Private _uidT As String = ""
+        Private _uidT As String = DefaultUid
         Public Property UidT As String
             Get
                 Return _uidT
@@ -62,7 +68,7 @@ Namespace ViewModels
             End Set
         End Property
 
-        Private _uidL As String = ""
+        Private _uidL As String = DefaultUid
         Public Property UidL As String
             Get
                 Return _uidL
@@ -72,7 +78,7 @@ Namespace ViewModels
             End Set
         End Property
 
-        Private _rsfPath As String = "C:\FXF\fxf3270.rsf"
+        Private _rsfPath As String = DefaultRsfPath
         Public Property RsfPath As String
             Get
                 Return _rsfPath
@@ -83,7 +89,7 @@ Namespace ViewModels
             End Set
         End Property
 
-        Private _timeout As Integer = 30000
+        Private _timeout As Integer = DefaultTimeout
         Public Property Timeout As Integer
             Get
                 Return _timeout
@@ -158,8 +164,8 @@ Namespace ViewModels
         ' ── Browse RSF path ──────────────────────────────────────────
         Private Sub ExecuteBrowseRsf()
             Dim dlg As New Microsoft.Win32.OpenFileDialog()
-            dlg.Title  = "Select RSF Screen Layout File"
-            dlg.Filter = "RSF files (*.rsf)|*.rsf|All files (*.*)|*.*"
+            dlg.Title  = "Select Screen Layout XML File"
+            dlg.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*"
             If Not String.IsNullOrWhiteSpace(_rsfPath) Then
                 Try
                     dlg.InitialDirectory = System.IO.Path.GetDirectoryName(_rsfPath)
@@ -179,20 +185,30 @@ Namespace ViewModels
                 Return
             End If
             If String.IsNullOrWhiteSpace(_rsfPath) Then
-                ErrorBanner = "RSF layout file path is required."
+                ErrorBanner = "Screen layout XML path is required."
                 Return
             End If
+
+            ' Set busy immediately so the form Connect button is also disabled
+            ' while password dialogs are open — prevents a second session opening.
+            IsBusy = True
 
             Dim pwdT As String = ""
             Dim pwdL As String = ""
 
             RaiseEvent RequestPassword("Terminal Password for user: " & _uidT,
                                        Sub(pwd) pwdT = pwd)
-            If String.IsNullOrEmpty(pwdT) Then Return
+            If String.IsNullOrEmpty(pwdT) Then
+                IsBusy = False
+                Return
+            End If
 
             RaiseEvent RequestPassword("Logility Password for user: " & _uidL,
                                        Sub(pwd) pwdL = pwd)
-            If String.IsNullOrEmpty(pwdL) Then Return
+            If String.IsNullOrEmpty(pwdL) Then
+                IsBusy = False
+                Return
+            End If
 
             DoConnectAsync(pwdT, pwdL)
         End Sub
@@ -207,7 +223,7 @@ Namespace ViewModels
                 Return
             End If
             If String.IsNullOrWhiteSpace(_rsfPath) Then
-                ErrorBanner = "RSF layout file path is required."
+                ErrorBanner = "Screen layout XML path is required."
                 Return
             End If
             If String.IsNullOrEmpty(pwdT) Then
@@ -233,10 +249,17 @@ Namespace ViewModels
                     pwdT, pwdL, _timeout)
 
                 If ok Then
+                    ErrorBanner = ""
                     SaveSettings()
                 Else
-                    ErrorBanner = "Connection failed. Check credentials and host."
+                    Dim detail As String = _session.LastConnectError
+                    ErrorBanner = If(String.IsNullOrWhiteSpace(detail),
+                        "Connection failed. Check credentials and host.",
+                        "Connection failed: " & detail)
                 End If
+            Catch ex As Exception
+                ' AggregateException or any unexpected failure escaping ConnectAsync
+                ErrorBanner = "Connection error: " & ex.Message
             Finally
                 ' Overwrite passwords before discarding
                 pwdT = New String("X"c, 10) : pwdT = ""
@@ -272,14 +295,32 @@ Namespace ViewModels
         End Sub
 
         Private Sub LoadSettings()
-            If Not String.IsNullOrWhiteSpace(My.MySettings.Default.LastHost) Then
-                _host       = My.MySettings.Default.LastHost
-                _systemCode = My.MySettings.Default.LastSystem
-                _uidT       = My.MySettings.Default.LastUidT
-                _uidL       = My.MySettings.Default.LastUidL
-                _rsfPath    = My.MySettings.Default.LastRsfPath
-                _timeout    = My.MySettings.Default.LastTimeout
-            End If
+            _host = If(String.IsNullOrWhiteSpace(My.MySettings.Default.LastHost),
+                       DefaultHost,
+                       My.MySettings.Default.LastHost)
+
+            _systemCode = If(String.IsNullOrWhiteSpace(My.MySettings.Default.LastSystem),
+                             DefaultSystemCode,
+                             My.MySettings.Default.LastSystem)
+
+            _uidT = If(String.IsNullOrWhiteSpace(My.MySettings.Default.LastUidT),
+                       DefaultUid,
+                       My.MySettings.Default.LastUidT)
+
+            _uidL = If(String.IsNullOrWhiteSpace(My.MySettings.Default.LastUidL),
+                       DefaultUid,
+                       My.MySettings.Default.LastUidL)
+
+            Dim savedPath As String = My.MySettings.Default.LastRsfPath
+            _rsfPath = If(String.IsNullOrWhiteSpace(savedPath) OrElse
+                          String.Equals(savedPath, "C:\FXF\fxf3270.rsf", StringComparison.OrdinalIgnoreCase) OrElse
+                          savedPath.EndsWith(".rsf", StringComparison.OrdinalIgnoreCase),
+                          DefaultRsfPath,
+                          savedPath)
+
+            _timeout = If(My.MySettings.Default.LastTimeout > 0,
+                          My.MySettings.Default.LastTimeout,
+                          DefaultTimeout)
         End Sub
 
     End Class

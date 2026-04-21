@@ -196,29 +196,34 @@ Namespace ViewModels
             ProgressTotal   = total
             ProgressCurrent = 0
 
-            For i As Integer = 0 To selectedRows.Count - 1
-                Dim row = selectedRows(i)
-                ProgressCurrent = i + 1
-                ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", i + 1, total, row.Action, row.Account)
+            Await _session.RunOnSessionThreadAsync(Sub()
+                For i As Integer = 0 To selectedRows.Count - 1
+                    Dim row = selectedRows(i)
+                    Dim idx = i
 
-                If String.IsNullOrWhiteSpace(row.Action) Then
-                    row.Status = OperationStatus.Skipped
-                    skipped   += 1
-                    Continue For
-                End If
+                    Application.Current.Dispatcher.InvokeAsync(Sub()
+                        ProgressCurrent = idx + 1
+                        ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", idx + 1, total, row.Action, row.Account)
+                        row.Status        = OperationStatus.Running
+                        row.StatusMessage = ""
+                    End Sub)
 
-                row.Status        = OperationStatus.Running
-                row.StatusMessage = ""
+                    If String.IsNullOrWhiteSpace(row.Action) Then
+                        Application.Current.Dispatcher.InvokeAsync(Sub()
+                            row.Status = OperationStatus.Skipped
+                        End Sub)
+                        skipped += 1
+                        Continue For
+                    End If
 
-                Try
-                    Await Task.Run(Sub() ProcessRow(row))
-                    ok += 1
-                Catch ex As Exception
-                    err += 1
-                End Try
-
-                Await Task.Delay(10)
-            Next
+                    Try
+                        ProcessRow(row)
+                        ok += 1
+                    Catch ex As Exception
+                        err += 1
+                    End Try
+                Next
+            End Sub)
 
             ProgressText  = String.Format("Complete — {0} OK, {1} errors, {2} skipped", ok, err, skipped)
             BannerMessage = ProgressText
@@ -352,6 +357,49 @@ Namespace ViewModels
                     row.Number    = G("Number")
                     row.Item      = G("Item")
                     row.Part      = G("Part")
+                    row.Release   = If(Core.CsvHelper.GetBool(f, hdr, "Release"), "Y", "N")
+                    row.PrepdIn   = If(Core.CsvHelper.GetBool(f, hdr, "PrepdIn"),  "Y", "N")
+                    row.PrepdOut  = If(Core.CsvHelper.GetBool(f, hdr, "PrepdOut"), "Y", "N")
+                    row.CollIn    = If(Core.CsvHelper.GetBool(f, hdr, "CollIn"),   "Y", "N")
+                    row.CollOut   = If(Core.CsvHelper.GetBool(f, hdr, "CollOut"),  "Y", "N")
+                    row.GT1IncExc = GD("GT1IncExc", "NA")
+                    row.GT1Dir    = GD("GT1Dir",    "NA")
+                    row.GT1Type   = GD("GT1Type",   "NA")
+                    row.GT1R1Name    = G("GT1R1Name")
+                    row.GT1R1Country = G("GT1R1Cty")
+                    row.GT1R2Name    = G("GT1R2Name")
+                    row.GT1R2Country = G("GT1R2Cty")
+                    row.GT1R3Name    = G("GT1R3Name")
+                    row.GT1R3Country = G("GT1R3Cty")
+                    row.GT1R4Name    = G("GT1R4Name")
+                    row.GT1R4Country = G("GT1R4Cty")
+                    row.GT1R5Name    = G("GT1R5Name")
+                    row.GT1R5Country = G("GT1R5Cty")
+                    row.GT2IncExc = GD("GT2IncExc", "NA")
+                    row.GT2Dir    = GD("GT2Dir",    "NA")
+                    row.GT2Type   = GD("GT2Type",   "NA")
+                    row.GT2R1Name    = G("GT2R1Name")
+                    row.GT2R1Country = G("GT2R1Cty")
+                    row.GT2R2Name    = G("GT2R2Name")
+                    row.GT2R2Country = G("GT2R2Cty")
+                    row.GT2R3Name    = G("GT2R3Name")
+                    row.GT2R3Country = G("GT2R3Cty")
+                    row.GT2R4Name    = G("GT2R4Name")
+                    row.GT2R4Country = G("GT2R4Cty")
+                    row.GT2R5Name    = G("GT2R5Name")
+                    row.GT2R5Country = G("GT2R5Cty")
+                    row.FsAuth  = G("FsAuth")
+                    row.FsNum   = G("FsNum")
+                    row.FsItem  = G("FsItem")
+                    row.RateEff = G("RateEff")
+                    row.ClsZip  = GD("ClsZip",  "NA")
+                    row.GenGeoA = GD("GenGeoA", "NA")
+                    row.DT1Disc = G("DT1Disc") : row.DT1MinChg = G("DT1MinChg") : row.DT1MaxWgt = G("DT1MaxWgt") : row.DT1FloorMin = G("DT1FloorMin") : row.DT1EffDate = G("DT1EffDate") : row.DT1CanDate = G("DT1CanDate")
+                    row.DT2Disc = G("DT2Disc") : row.DT2MinChg = G("DT2MinChg") : row.DT2MaxWgt = G("DT2MaxWgt") : row.DT2FloorMin = G("DT2FloorMin") : row.DT2EffDate = G("DT2EffDate") : row.DT2CanDate = G("DT2CanDate")
+                    row.DT3Disc = G("DT3Disc") : row.DT3MinChg = G("DT3MinChg") : row.DT3MaxWgt = G("DT3MaxWgt") : row.DT3FloorMin = G("DT3FloorMin") : row.DT3EffDate = G("DT3EffDate") : row.DT3CanDate = G("DT3CanDate")
+                    row.DT4Disc = G("DT4Disc") : row.DT4MinChg = G("DT4MinChg") : row.DT4MaxWgt = G("DT4MaxWgt") : row.DT4FloorMin = G("DT4FloorMin") : row.DT4EffDate = G("DT4EffDate") : row.DT4CanDate = G("DT4CanDate")
+                    row.DT5Disc = G("DT5Disc") : row.DT5MinChg = G("DT5MinChg") : row.DT5MaxWgt = G("DT5MaxWgt") : row.DT5FloorMin = G("DT5FloorMin") : row.DT5EffDate = G("DT5EffDate") : row.DT5CanDate = G("DT5CanDate")
+                    row.IsSelected = True
                     BatchRows.Add(row)
                     count += 1
                 Catch
@@ -382,11 +430,49 @@ Namespace ViewModels
                 br.Number    = G("NUMBER")
                 br.Item      = G("ITEM")
                 br.Part      = G("PART")
-                br.Release  = If(G("RELEASE").ToUpper()  = "Y", "Y", "N")
-                br.PrepdIn  = If(G("PREPDIN").ToUpper()  = "Y", "Y", "N")
-                br.PrepdOut = If(G("PREPDOUT").ToUpper() = "Y", "Y", "N")
-                br.CollIn   = If(G("COLLIN").ToUpper()   = "Y", "Y", "N")
-                br.CollOut  = If(G("COLLOUT").ToUpper()  = "Y", "Y", "N")
+                br.Release   = If(G("RELEASE").ToUpper()  = "Y", "Y", "N")
+                br.PrepdIn   = If(G("PREPDIN").ToUpper()  = "Y", "Y", "N")
+                br.PrepdOut  = If(G("PREPDOUT").ToUpper() = "Y", "Y", "N")
+                br.CollIn    = If(G("COLLIN").ToUpper()   = "Y", "Y", "N")
+                br.CollOut   = If(G("COLLOUT").ToUpper()  = "Y", "Y", "N")
+                br.GT1IncExc = GD("GT1INCEXC", "NA")
+                br.GT1Dir    = GD("GT1DIR",    "NA")
+                br.GT1Type   = GD("GT1TYPE",   "NA")
+                br.GT1R1Name    = G("GT1R1NAME")
+                br.GT1R1Country = G("GT1R1CTY")
+                br.GT1R2Name    = G("GT1R2NAME")
+                br.GT1R2Country = G("GT1R2CTY")
+                br.GT1R3Name    = G("GT1R3NAME")
+                br.GT1R3Country = G("GT1R3CTY")
+                br.GT1R4Name    = G("GT1R4NAME")
+                br.GT1R4Country = G("GT1R4CTY")
+                br.GT1R5Name    = G("GT1R5NAME")
+                br.GT1R5Country = G("GT1R5CTY")
+                br.GT2IncExc = GD("GT2INCEXC", "NA")
+                br.GT2Dir    = GD("GT2DIR",    "NA")
+                br.GT2Type   = GD("GT2TYPE",   "NA")
+                br.GT2R1Name    = G("GT2R1NAME")
+                br.GT2R1Country = G("GT2R1CTY")
+                br.GT2R2Name    = G("GT2R2NAME")
+                br.GT2R2Country = G("GT2R2CTY")
+                br.GT2R3Name    = G("GT2R3NAME")
+                br.GT2R3Country = G("GT2R3CTY")
+                br.GT2R4Name    = G("GT2R4NAME")
+                br.GT2R4Country = G("GT2R4CTY")
+                br.GT2R5Name    = G("GT2R5NAME")
+                br.GT2R5Country = G("GT2R5CTY")
+                br.FsAuth   = G("FSAUTH")
+                br.FsNum    = G("FSNUM")
+                br.FsItem   = G("FSITEM")
+                br.RateEff  = G("RATEEFF")
+                br.ClsZip   = GD("CLSZIP",   "NA")
+                br.GenGeoA  = GD("GENGEOA",  "NA")
+                br.DT1Disc = G("DT1DISC") : br.DT1MinChg = G("DT1MINCHG") : br.DT1MaxWgt = G("DT1MAXWGT") : br.DT1FloorMin = G("DT1FLOORMIN") : br.DT1EffDate = G("DT1EFFDATE") : br.DT1CanDate = G("DT1CANDATE")
+                br.DT2Disc = G("DT2DISC") : br.DT2MinChg = G("DT2MINCHG") : br.DT2MaxWgt = G("DT2MAXWGT") : br.DT2FloorMin = G("DT2FLOORMIN") : br.DT2EffDate = G("DT2EFFDATE") : br.DT2CanDate = G("DT2CANDATE")
+                br.DT3Disc = G("DT3DISC") : br.DT3MinChg = G("DT3MINCHG") : br.DT3MaxWgt = G("DT3MAXWGT") : br.DT3FloorMin = G("DT3FLOORMIN") : br.DT3EffDate = G("DT3EFFDATE") : br.DT3CanDate = G("DT3CANDATE")
+                br.DT4Disc = G("DT4DISC") : br.DT4MinChg = G("DT4MINCHG") : br.DT4MaxWgt = G("DT4MAXWGT") : br.DT4FloorMin = G("DT4FLOORMIN") : br.DT4EffDate = G("DT4EFFDATE") : br.DT4CanDate = G("DT4CANDATE")
+                br.DT5Disc = G("DT5DISC") : br.DT5MinChg = G("DT5MINCHG") : br.DT5MaxWgt = G("DT5MAXWGT") : br.DT5FloorMin = G("DT5FLOORMIN") : br.DT5EffDate = G("DT5EFFDATE") : br.DT5CanDate = G("DT5CANDATE")
+                br.IsSelected = True
                 BatchRows.Add(br)
             Next
         End Sub
@@ -612,29 +698,34 @@ Namespace ViewModels
             ProgressTotal   = total
             ProgressCurrent = 0
 
-            For i As Integer = 0 To selectedRows.Count - 1
-                Dim row = selectedRows(i)
-                ProgressCurrent = i + 1
-                ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", i + 1, total, row.Action, row.Account)
+            Await _session.RunOnSessionThreadAsync(Sub()
+                For i As Integer = 0 To selectedRows.Count - 1
+                    Dim row = selectedRows(i)
+                    Dim idx = i
 
-                If String.IsNullOrWhiteSpace(row.Action) Then
-                    row.Status = OperationStatus.Skipped
-                    skipped   += 1
-                    Continue For
-                End If
+                    Application.Current.Dispatcher.InvokeAsync(Sub()
+                        ProgressCurrent = idx + 1
+                        ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", idx + 1, total, row.Action, row.Account)
+                        row.Status        = OperationStatus.Running
+                        row.StatusMessage = ""
+                    End Sub)
 
-                row.Status        = OperationStatus.Running
-                row.StatusMessage = ""
+                    If String.IsNullOrWhiteSpace(row.Action) Then
+                        Application.Current.Dispatcher.InvokeAsync(Sub()
+                            row.Status = OperationStatus.Skipped
+                        End Sub)
+                        skipped += 1
+                        Continue For
+                    End If
 
-                Try
-                    Await Task.Run(Sub() ProcessRow(row))
-                    ok += 1
-                Catch ex As Exception
-                    err += 1
-                End Try
-
-                Await Task.Delay(10)
-            Next
+                    Try
+                        ProcessRow(row)
+                        ok += 1
+                    Catch ex As Exception
+                        err += 1
+                    End Try
+                Next
+            End Sub)
 
             ProgressText  = String.Format("Complete — {0} OK, {1} errors, {2} skipped", ok, err, skipped)
             BannerMessage = ProgressText
@@ -798,7 +889,39 @@ Namespace ViewModels
                 br.Number    = G("NUMBER")
                 br.Item      = G("ITEM")
                 br.Part      = G("PART")
-                br.Release   = If(G("RELEASE").ToUpper() = "Y", "Y", "N")
+                br.Release      = If(G("RELEASE").ToUpper() = "Y", "Y", "N")
+                br.R1PlusMinus  = GD("R1PLUSMINUS", "NA")
+                br.R1Dir        = GD("R1DIR",       "NA")
+                br.R1Type       = GD("R1TYPE",      "NA")
+                br.R1Name       = G("R1NAME")
+                br.R1State      = G("R1STATE")
+                br.R1Country    = G("R1CTY")
+                br.R2PlusMinus  = GD("R2PLUSMINUS", "NA")
+                br.R2Dir        = GD("R2DIR",       "NA")
+                br.R2Type       = GD("R2TYPE",      "NA")
+                br.R2Name       = G("R2NAME")
+                br.R2State      = G("R2STATE")
+                br.R2Country    = G("R2CTY")
+                br.R3PlusMinus  = GD("R3PLUSMINUS", "NA")
+                br.R3Dir        = GD("R3DIR",       "NA")
+                br.R3Type       = GD("R3TYPE",      "NA")
+                br.R3Name       = G("R3NAME")
+                br.R3State      = G("R3STATE")
+                br.R3Country    = G("R3CTY")
+                br.R4PlusMinus  = GD("R4PLUSMINUS", "NA")
+                br.R4Dir        = GD("R4DIR",       "NA")
+                br.R4Type       = GD("R4TYPE",      "NA")
+                br.R4Name       = G("R4NAME")
+                br.R4State      = G("R4STATE")
+                br.R4Country    = G("R4CTY")
+                br.R5PlusMinus  = GD("R5PLUSMINUS", "NA")
+                br.R5Dir        = GD("R5DIR",       "NA")
+                br.R5Type       = GD("R5TYPE",      "NA")
+                br.R5Name       = G("R5NAME")
+                br.R5State      = G("R5STATE")
+                br.R5Country    = G("R5CTY")
+                br.SrvDaysLo    = G("SRVDAYSLO")
+                br.SrvDaysHi    = G("SRVDAYSHI")
                 BatchRows.Add(br)
             Next
         End Sub
@@ -1021,29 +1144,34 @@ Namespace ViewModels
             ProgressTotal   = total
             ProgressCurrent = 0
 
-            For i As Integer = 0 To selectedRows.Count - 1
-                Dim row = selectedRows(i)
-                ProgressCurrent = i + 1
-                ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", i + 1, total, row.Action, row.Account)
+            Await _session.RunOnSessionThreadAsync(Sub()
+                For i As Integer = 0 To selectedRows.Count - 1
+                    Dim row = selectedRows(i)
+                    Dim idx = i
 
-                If String.IsNullOrWhiteSpace(row.Action) Then
-                    row.Status = OperationStatus.Skipped
-                    skipped   += 1
-                    Continue For
-                End If
+                    Application.Current.Dispatcher.InvokeAsync(Sub()
+                        ProgressCurrent = idx + 1
+                        ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", idx + 1, total, row.Action, row.Account)
+                        row.Status        = OperationStatus.Running
+                        row.StatusMessage = ""
+                    End Sub)
 
-                row.Status        = OperationStatus.Running
-                row.StatusMessage = ""
+                    If String.IsNullOrWhiteSpace(row.Action) Then
+                        Application.Current.Dispatcher.InvokeAsync(Sub()
+                            row.Status = OperationStatus.Skipped
+                        End Sub)
+                        skipped += 1
+                        Continue For
+                    End If
 
-                Try
-                    Await Task.Run(Sub() ProcessRow(row))
-                    ok += 1
-                Catch ex As Exception
-                    err += 1
-                End Try
-
-                Await Task.Delay(10)
-            Next
+                    Try
+                        ProcessRow(row)
+                        ok += 1
+                    Catch ex As Exception
+                        err += 1
+                    End Try
+                Next
+            End Sub)
 
             ProgressText  = String.Format("Complete — {0} OK, {1} errors, {2} skipped", ok, err, skipped)
             BannerMessage = ProgressText
@@ -1216,6 +1344,30 @@ Namespace ViewModels
                 br.Number    = G("NUMBER")
                 br.Item      = G("ITEM")
                 br.Part      = G("PART")
+                br.EffDate     = G("EFFDATE")
+                br.CanDateItem = G("CANDATEITEM")
+                br.ExcCls      = G("EXCCLS")
+                br.ExcMaxW     = G("EXCMAXW")
+                br.P1Type      = GD("P1TYPE",  "NA")
+                br.P1Prod1     = G("P1PROD1")
+                br.P1Prod2     = G("P1PROD2")
+                br.P1ExcCls    = G("P1EXCCLS")
+                br.P2Type      = GD("P2TYPE",  "NA")
+                br.P2Prod1     = G("P2PROD1")
+                br.P2Prod2     = G("P2PROD2")
+                br.P2ExcCls    = G("P2EXCCLS")
+                br.P3Type      = GD("P3TYPE",  "NA")
+                br.P3Prod1     = G("P3PROD1")
+                br.P3Prod2     = G("P3PROD2")
+                br.P3ExcCls    = G("P3EXCCLS")
+                br.P4Type      = GD("P4TYPE",  "NA")
+                br.P4Prod1     = G("P4PROD1")
+                br.P4Prod2     = G("P4PROD2")
+                br.P4ExcCls    = G("P4EXCCLS")
+                br.P5Type      = GD("P5TYPE",  "NA")
+                br.P5Prod1     = G("P5PROD1")
+                br.P5Prod2     = G("P5PROD2")
+                br.P5ExcCls    = G("P5EXCCLS")
                 BatchRows.Add(br)
             Next
         End Sub
@@ -1439,29 +1591,34 @@ Namespace ViewModels
             ProgressTotal   = total
             ProgressCurrent = 0
 
-            For i As Integer = 0 To selectedRows.Count - 1
-                Dim row = selectedRows(i)
-                ProgressCurrent = i + 1
-                ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", i + 1, total, row.Action, row.Account)
+            Await _session.RunOnSessionThreadAsync(Sub()
+                For i As Integer = 0 To selectedRows.Count - 1
+                    Dim row = selectedRows(i)
+                    Dim idx = i
 
-                If String.IsNullOrWhiteSpace(row.Action) Then
-                    row.Status = OperationStatus.Skipped
-                    skipped   += 1
-                    Continue For
-                End If
+                    Application.Current.Dispatcher.InvokeAsync(Sub()
+                        ProgressCurrent = idx + 1
+                        ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", idx + 1, total, row.Action, row.Account)
+                        row.Status        = OperationStatus.Running
+                        row.StatusMessage = ""
+                    End Sub)
 
-                row.Status        = OperationStatus.Running
-                row.StatusMessage = ""
+                    If String.IsNullOrWhiteSpace(row.Action) Then
+                        Application.Current.Dispatcher.InvokeAsync(Sub()
+                            row.Status = OperationStatus.Skipped
+                        End Sub)
+                        skipped += 1
+                        Continue For
+                    End If
 
-                Try
-                    Await Task.Run(Sub() ProcessRow(row))
-                    ok += 1
-                Catch ex As Exception
-                    err += 1
-                End Try
-
-                Await Task.Delay(10)
-            Next
+                    Try
+                        ProcessRow(row)
+                        ok += 1
+                    Catch ex As Exception
+                        err += 1
+                    End Try
+                Next
+            End Sub)
 
             ProgressText  = String.Format("Complete — {0} OK, {1} errors, {2} skipped", ok, err, skipped)
             BannerMessage = ProgressText
@@ -1635,7 +1792,24 @@ Namespace ViewModels
                 br.Number    = G("NUMBER")
                 br.Item      = G("ITEM")
                 br.Part      = G("PART")
-                br.RateManually = If(G("RATEMANUALLY").ToUpper() = "Y", "Y", "N")
+                br.Condition      = G("CONDITION")
+                br.PrepdOrCollect = GD("PREPDORCOLLECT", "NA")
+                br.EffDate        = G("EFFDATE")
+                br.CanDateItem    = G("CANDATEITEM")
+                br.Comments       = G("COMMENTS")
+                br.Alternation    = GD("ALTERNATION",   "NA")
+                br.ClassRates     = GD("CLASSRATES",    "NA")
+                br.RateManually   = If(G("RATEMANUALLY").ToUpper() = "Y", "Y", "N")
+                br.RT1Wgt  = G("RT1WGT")  : br.RT1Type  = GD("RT1TYPE",  "NA") : br.RT1Amt  = G("RT1AMT")
+                br.RT2Wgt  = G("RT2WGT")  : br.RT2Type  = GD("RT2TYPE",  "NA") : br.RT2Amt  = G("RT2AMT")
+                br.RT3Wgt  = G("RT3WGT")  : br.RT3Type  = GD("RT3TYPE",  "NA") : br.RT3Amt  = G("RT3AMT")
+                br.RT4Wgt  = G("RT4WGT")  : br.RT4Type  = GD("RT4TYPE",  "NA") : br.RT4Amt  = G("RT4AMT")
+                br.RT5Wgt  = G("RT5WGT")  : br.RT5Type  = GD("RT5TYPE",  "NA") : br.RT5Amt  = G("RT5AMT")
+                br.RT6Wgt  = G("RT6WGT")  : br.RT6Type  = GD("RT6TYPE",  "NA") : br.RT6Amt  = G("RT6AMT")
+                br.RT7Wgt  = G("RT7WGT")  : br.RT7Type  = GD("RT7TYPE",  "NA") : br.RT7Amt  = G("RT7AMT")
+                br.RT8Wgt  = G("RT8WGT")  : br.RT8Type  = GD("RT8TYPE",  "NA") : br.RT8Amt  = G("RT8AMT")
+                br.RT9Wgt  = G("RT9WGT")  : br.RT9Type  = GD("RT9TYPE",  "NA") : br.RT9Amt  = G("RT9AMT")
+                br.RT10Wgt = G("RT10WGT") : br.RT10Type = GD("RT10TYPE", "NA") : br.RT10Amt = G("RT10AMT")
                 BatchRows.Add(br)
             Next
         End Sub
@@ -1859,29 +2033,34 @@ Namespace ViewModels
             ProgressTotal   = total
             ProgressCurrent = 0
 
-            For i As Integer = 0 To selectedRows.Count - 1
-                Dim row = selectedRows(i)
-                ProgressCurrent = i + 1
-                ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", i + 1, total, row.Action, row.Account)
+            Await _session.RunOnSessionThreadAsync(Sub()
+                For i As Integer = 0 To selectedRows.Count - 1
+                    Dim row = selectedRows(i)
+                    Dim idx = i
 
-                If String.IsNullOrWhiteSpace(row.Action) Then
-                    row.Status = OperationStatus.Skipped
-                    skipped   += 1
-                    Continue For
-                End If
+                    Application.Current.Dispatcher.InvokeAsync(Sub()
+                        ProgressCurrent = idx + 1
+                        ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", idx + 1, total, row.Action, row.Account)
+                        row.Status        = OperationStatus.Running
+                        row.StatusMessage = ""
+                    End Sub)
 
-                row.Status        = OperationStatus.Running
-                row.StatusMessage = ""
+                    If String.IsNullOrWhiteSpace(row.Action) Then
+                        Application.Current.Dispatcher.InvokeAsync(Sub()
+                            row.Status = OperationStatus.Skipped
+                        End Sub)
+                        skipped += 1
+                        Continue For
+                    End If
 
-                Try
-                    Await Task.Run(Sub() ProcessRow(row))
-                    ok += 1
-                Catch ex As Exception
-                    err += 1
-                End Try
-
-                Await Task.Delay(10)
-            Next
+                    Try
+                        ProcessRow(row)
+                        ok += 1
+                    Catch ex As Exception
+                        err += 1
+                    End Try
+                Next
+            End Sub)
 
             ProgressText  = String.Format("Complete — {0} OK, {1} errors, {2} skipped", ok, err, skipped)
             BannerMessage = ProgressText
@@ -2054,6 +2233,23 @@ Namespace ViewModels
                 br.Number    = G("NUMBER")
                 br.Item      = G("ITEM")
                 br.Part      = G("PART")
+                br.AdjType       = GD("ADJTYPE",        "NA")
+                br.Condition     = G("CONDITION")
+                br.PrepdOrCollect = GD("PREPDORCOLLECT", "NA")
+                br.EffDate       = G("EFFDATE")
+                br.CanDateItem   = G("CANDATEITEM")
+                br.Comments      = G("COMMENTS")
+                br.AppRule       = GD("APPRULE",        "NA")
+                br.RT1Wgt  = G("RT1WGT")  : br.RT1DiscAdjDir  = GD("RT1DIR",  "NA") : br.RT1DiscAdjUnits  = GD("RT1UNITS",  "NA") : br.RT1DiscAdjType  = GD("RT1TYPE",  "NA") : br.RT1Amt  = G("RT1AMT")
+                br.RT2Wgt  = G("RT2WGT")  : br.RT2DiscAdjDir  = GD("RT2DIR",  "NA") : br.RT2DiscAdjUnits  = GD("RT2UNITS",  "NA") : br.RT2DiscAdjType  = GD("RT2TYPE",  "NA") : br.RT2Amt  = G("RT2AMT")
+                br.RT3Wgt  = G("RT3WGT")  : br.RT3DiscAdjDir  = GD("RT3DIR",  "NA") : br.RT3DiscAdjUnits  = GD("RT3UNITS",  "NA") : br.RT3DiscAdjType  = GD("RT3TYPE",  "NA") : br.RT3Amt  = G("RT3AMT")
+                br.RT4Wgt  = G("RT4WGT")  : br.RT4DiscAdjDir  = GD("RT4DIR",  "NA") : br.RT4DiscAdjUnits  = GD("RT4UNITS",  "NA") : br.RT4DiscAdjType  = GD("RT4TYPE",  "NA") : br.RT4Amt  = G("RT4AMT")
+                br.RT5Wgt  = G("RT5WGT")  : br.RT5DiscAdjDir  = GD("RT5DIR",  "NA") : br.RT5DiscAdjUnits  = GD("RT5UNITS",  "NA") : br.RT5DiscAdjType  = GD("RT5TYPE",  "NA") : br.RT5Amt  = G("RT5AMT")
+                br.RT6Wgt  = G("RT6WGT")  : br.RT6DiscAdjDir  = GD("RT6DIR",  "NA") : br.RT6DiscAdjUnits  = GD("RT6UNITS",  "NA") : br.RT6DiscAdjType  = GD("RT6TYPE",  "NA") : br.RT6Amt  = G("RT6AMT")
+                br.RT7Wgt  = G("RT7WGT")  : br.RT7DiscAdjDir  = GD("RT7DIR",  "NA") : br.RT7DiscAdjUnits  = GD("RT7UNITS",  "NA") : br.RT7DiscAdjType  = GD("RT7TYPE",  "NA") : br.RT7Amt  = G("RT7AMT")
+                br.RT8Wgt  = G("RT8WGT")  : br.RT8DiscAdjDir  = GD("RT8DIR",  "NA") : br.RT8DiscAdjUnits  = GD("RT8UNITS",  "NA") : br.RT8DiscAdjType  = GD("RT8TYPE",  "NA") : br.RT8Amt  = G("RT8AMT")
+                br.RT9Wgt  = G("RT9WGT")  : br.RT9DiscAdjDir  = GD("RT9DIR",  "NA") : br.RT9DiscAdjUnits  = GD("RT9UNITS",  "NA") : br.RT9DiscAdjType  = GD("RT9TYPE",  "NA") : br.RT9Amt  = G("RT9AMT")
+                br.RT10Wgt = G("RT10WGT") : br.RT10DiscAdjDir = GD("RT10DIR", "NA") : br.RT10DiscAdjUnits = GD("RT10UNITS", "NA") : br.RT10DiscAdjType = GD("RT10TYPE", "NA") : br.RT10Amt = G("RT10AMT")
                 BatchRows.Add(br)
             Next
         End Sub
@@ -2278,29 +2474,34 @@ Namespace ViewModels
             ProgressTotal   = total
             ProgressCurrent = 0
 
-            For i As Integer = 0 To selectedRows.Count - 1
-                Dim row = selectedRows(i)
-                ProgressCurrent = i + 1
-                ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", i + 1, total, row.Action, row.Account)
+            Await _session.RunOnSessionThreadAsync(Sub()
+                For i As Integer = 0 To selectedRows.Count - 1
+                    Dim row = selectedRows(i)
+                    Dim idx = i
 
-                If String.IsNullOrWhiteSpace(row.Action) Then
-                    row.Status = OperationStatus.Skipped
-                    skipped   += 1
-                    Continue For
-                End If
+                    Application.Current.Dispatcher.InvokeAsync(Sub()
+                        ProgressCurrent = idx + 1
+                        ProgressText    = String.Format("Row {0}/{1}  — {2} {3}", idx + 1, total, row.Action, row.Account)
+                        row.Status        = OperationStatus.Running
+                        row.StatusMessage = ""
+                    End Sub)
 
-                row.Status        = OperationStatus.Running
-                row.StatusMessage = ""
+                    If String.IsNullOrWhiteSpace(row.Action) Then
+                        Application.Current.Dispatcher.InvokeAsync(Sub()
+                            row.Status = OperationStatus.Skipped
+                        End Sub)
+                        skipped += 1
+                        Continue For
+                    End If
 
-                Try
-                    Await Task.Run(Sub() ProcessRow(row))
-                    ok += 1
-                Catch ex As Exception
-                    err += 1
-                End Try
-
-                Await Task.Delay(10)
-            Next
+                    Try
+                        ProcessRow(row)
+                        ok += 1
+                    Catch ex As Exception
+                        err += 1
+                    End Try
+                Next
+            End Sub)
 
             ProgressText  = String.Format("Complete — {0} OK, {1} errors, {2} skipped", ok, err, skipped)
             BannerMessage = ProgressText
@@ -2474,7 +2675,21 @@ Namespace ViewModels
                 br.Number    = G("NUMBER")
                 br.Item      = G("ITEM")
                 br.Part      = G("PART")
-                br.Release   = If(G("RELEASE").ToUpper() = "Y", "Y", "N")
+                br.Release        = If(G("RELEASE").ToUpper() = "Y", "Y", "N")
+                br.PrepdOrCollect = GD("PREPDORCOLLECT", "NA")
+                br.EffDate        = G("EFFDATE")
+                br.CanDateItem    = G("CANDATEITEM")
+                br.Comments       = G("COMMENTS")
+                br.S1Cond   = G("S1COND")  : br.S1Desc   = G("S1DESC")  : br.S1Type   = G("S1TYPE")  : br.S1Amount   = G("S1AMT")  : br.S1CondId   = G("S1CONDID")
+                br.S2Cond   = G("S2COND")  : br.S2Desc   = G("S2DESC")  : br.S2Type   = G("S2TYPE")  : br.S2Amount   = G("S2AMT")  : br.S2CondId   = G("S2CONDID")
+                br.S3Cond   = G("S3COND")  : br.S3Desc   = G("S3DESC")  : br.S3Type   = G("S3TYPE")  : br.S3Amount   = G("S3AMT")  : br.S3CondId   = G("S3CONDID")
+                br.S4Cond   = G("S4COND")  : br.S4Desc   = G("S4DESC")  : br.S4Type   = G("S4TYPE")  : br.S4Amount   = G("S4AMT")  : br.S4CondId   = G("S4CONDID")
+                br.S5Cond   = G("S5COND")  : br.S5Desc   = G("S5DESC")  : br.S5Type   = G("S5TYPE")  : br.S5Amount   = G("S5AMT")  : br.S5CondId   = G("S5CONDID")
+                br.S6Cond   = G("S6COND")  : br.S6Desc   = G("S6DESC")  : br.S6Type   = G("S6TYPE")  : br.S6Amount   = G("S6AMT")  : br.S6CondId   = G("S6CONDID")
+                br.S7Cond   = G("S7COND")  : br.S7Desc   = G("S7DESC")  : br.S7Type   = G("S7TYPE")  : br.S7Amount   = G("S7AMT")  : br.S7CondId   = G("S7CONDID")
+                br.S8Cond   = G("S8COND")  : br.S8Desc   = G("S8DESC")  : br.S8Type   = G("S8TYPE")  : br.S8Amount   = G("S8AMT")  : br.S8CondId   = G("S8CONDID")
+                br.S9Cond   = G("S9COND")  : br.S9Desc   = G("S9DESC")  : br.S9Type   = G("S9TYPE")  : br.S9Amount   = G("S9AMT")  : br.S9CondId   = G("S9CONDID")
+                br.S10Cond  = G("S10COND") : br.S10Desc  = G("S10DESC") : br.S10Type  = G("S10TYPE") : br.S10Amount  = G("S10AMT") : br.S10CondId  = G("S10CONDID")
                 BatchRows.Add(br)
             Next
         End Sub

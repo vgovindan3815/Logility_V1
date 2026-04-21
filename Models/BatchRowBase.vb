@@ -221,6 +221,57 @@ Namespace Models
             End Set
         End Property
 
+        ' ── Detailed error information for debugging ─────────────────
+        Private _errorCategory As ScreenErrorCategory = ScreenErrorCategory.None
+        Public Property ErrorCategory As ScreenErrorCategory
+            Get
+                Return _errorCategory
+            End Get
+            Set(v As ScreenErrorCategory)
+                SetField(_errorCategory, v)
+            End Set
+        End Property
+
+        Private _screenDump As String = ""
+        Public Property ScreenDump As String
+            Get
+                Return _screenDump
+            End Get
+            Set(v As String)
+                SetField(_screenDump, v)
+            End Set
+        End Property
+
+        Private _exceptionType As String = ""
+        Public Property ExceptionType As String
+            Get
+                Return _exceptionType
+            End Get
+            Set(v As String)
+                SetField(_exceptionType, v)
+            End Set
+        End Property
+
+        Private _exceptionDetails As String = ""
+        Public Property ExceptionDetails As String
+            Get
+                Return _exceptionDetails
+            End Get
+            Set(v As String)
+                SetField(_exceptionDetails, v)
+            End Set
+        End Property
+
+        Private _timestamp As DateTime = DateTime.Now
+        Public Property ErrorTimestamp As DateTime
+            Get
+                Return _timestamp
+            End Get
+            Set(v As DateTime)
+                SetField(_timestamp, v)
+            End Set
+        End Property
+
     End Class
 
     ''' <summary>

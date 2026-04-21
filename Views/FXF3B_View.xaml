@@ -58,6 +58,7 @@
             <StackPanel Orientation="Horizontal">
                 <Button Content="?  Run Batch"
                         Command="{Binding RunBatchCommand}"
+                        Click="RunBatch_Click"
                         Style="{StaticResource RunButtonStyle}"
                         Margin="0,0,8,0"/>
                 <Button Content="+  Add Row"
@@ -110,6 +111,7 @@
 
         <!-- Row 4: Batch DataGrid ================================ -->
         <DataGrid Grid.Row="4"
+                  x:Name="BatchDataGrid"
                   ItemsSource="{Binding BatchRows}"
                   Style="{StaticResource BatchDataGridStyle}"
                   ColumnHeaderStyle="{StaticResource DataGridHeaderStyle}"
@@ -128,54 +130,75 @@
                 </DataGridTemplateColumn>
 
                 <!-- Frozen key columns -->
-                <DataGridComboBoxColumn Header="ACTION" Width="90"
-                    SelectedValueBinding="{Binding Action, UpdateSourceTrigger=PropertyChanged}"
-                    >
-                    <DataGridComboBoxColumn.ItemsSource>
-                        <x:Array Type="sys:String">
-                            <sys:String>GET</sys:String>
-                            <sys:String>ADD</sys:String>
-                            <sys:String>CHANGE</sys:String>
-                            <sys:String>DELETE</sys:String>
-                        </x:Array>
-                    </DataGridComboBoxColumn.ItemsSource>
-                </DataGridComboBoxColumn>
+                <DataGridTemplateColumn Header="ACTION" Width="90" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Action}" FontFamily="Calibri" FontSize="11"
+                                       VerticalAlignment="Center" Padding="4,0"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedItem="{Binding Action, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      BorderThickness="0" Padding="2,0">
+                                <sys:String>GET</sys:String>
+                                <sys:String>ADD</sys:String>
+                                <sys:String>CHANGE</sys:String>
+                                <sys:String>DELETE</sys:String>
+                            </ComboBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
 
-                <DataGridComboBoxColumn Header="CARRIER" Width="80"
-                    SelectedValueBinding="{Binding Carrier, UpdateSourceTrigger=PropertyChanged}"
-                    >
-                    <DataGridComboBoxColumn.ItemsSource>
-                        <x:Array Type="sys:String">
-                            <sys:String>ARFW</sys:String>
-                            <sys:String>VIKN</sys:String>
-                            <sys:String>FXFM</sys:String>
-                            <sys:String>FXNL</sys:String>
-                            <sys:String>FXFC_INTRACANADA</sys:String>
-                            <sys:String>FXFC_CROSSBORDER</sys:String>
-                            <sys:String>DFLT</sys:String>
-                        </x:Array>
-                    </DataGridComboBoxColumn.ItemsSource>
-                </DataGridComboBoxColumn>
+                <DataGridTemplateColumn Header="CARRIER" Width="80" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Carrier}" FontFamily="Calibri" FontSize="11"
+                                       VerticalAlignment="Center" Padding="4,0"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedItem="{Binding Carrier, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      BorderThickness="0" Padding="2,0">
+                                <sys:String>ARFW</sys:String>
+                                <sys:String>VIKN</sys:String>
+                                <sys:String>FXFM</sys:String>
+                                <sys:String>FXNL</sys:String>
+                                <sys:String>FXFC_INTRACANADA</sys:String>
+                                <sys:String>FXFC_CROSSBORDER</sys:String>
+                                <sys:String>DFLT</sys:String>
+                            </ComboBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
 
-                <DataGridComboBoxColumn Header="CUST TYPE" Width="80"
-                    SelectedValueBinding="{Binding CustType, UpdateSourceTrigger=PropertyChanged}"
-                    >
-                    <DataGridComboBoxColumn.ItemsSource>
-                        <x:Array Type="sys:String">
-                            <sys:String>CC</sys:String>
-                            <sys:String>CN</sys:String>
-                            <sys:String>NC</sys:String>
-                            <sys:String>NN</sys:String>
-                            <sys:String>EN</sys:String>
-                            <sys:String>FA</sys:String>
-                            <sys:String>SG</sys:String>
-                            <sys:String>GR</sys:String>
-                            <sys:String>CY</sys:String>
-                            <sys:String>DV</sys:String>
-                            <sys:String>GE</sys:String>
-                        </x:Array>
-                    </DataGridComboBoxColumn.ItemsSource>
-                </DataGridComboBoxColumn>
+                <DataGridTemplateColumn Header="CUST TYPE" Width="80" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding CustType}" FontFamily="Calibri" FontSize="11"
+                                       VerticalAlignment="Center" Padding="4,0"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedItem="{Binding CustType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      BorderThickness="0" Padding="2,0">
+                                <sys:String>CC</sys:String>
+                                <sys:String>CN</sys:String>
+                                <sys:String>NC</sys:String>
+                                <sys:String>NN</sys:String>
+                                <sys:String>EN</sys:String>
+                                <sys:String>FA</sys:String>
+                                <sys:String>SG</sys:String>
+                                <sys:String>GR</sys:String>
+                                <sys:String>CY</sys:String>
+                                <sys:String>DV</sys:String>
+                                <sys:String>GE</sys:String>
+                            </ComboBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
 
                 <DataGridTextColumn Header="ACCOUNT"   Width="110" 
                     Binding="{Binding Account,    UpdateSourceTrigger=PropertyChanged}"/>

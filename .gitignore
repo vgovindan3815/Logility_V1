@@ -33,3 +33,11 @@ Claude specs/
 # Generated docs
 FXF3A_Tool_Technical_Workflow.docx
 gen_tech_doc.py
+FXF3A_Tool_Connection_Guide.docx
+gen_connection_guide_docx.py
+
+# Distributable packages
+FXF3A_Tool_*_dist.zip
+make_package.py
+
+.fake

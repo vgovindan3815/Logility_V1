@@ -129,9 +129,9 @@
                              Style="{StaticResource FormTextBoxStyle}"
                              ToolTip="Logility pricing system user ID"/>
 
-                    <!-- Row 4: RSF Path + Browse -->
+                    <!-- Row 4: Screen Layout XML + Browse -->
                     <TextBlock Grid.Row="4" Grid.Column="0"
-                               Text="RSF Path"
+                               Text="Screen Layout XML"
                                FontFamily="Calibri" FontSize="12" Foreground="#333D5A"
                                VerticalAlignment="Center"/>
                     <DockPanel Grid.Row="4" Grid.Column="1">
@@ -142,7 +142,7 @@
                                 Width="72" Height="28" Margin="6,0,0,0"/>
                         <TextBox Text="{Binding RsfPath, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource FormTextBoxStyle}"
-                                 ToolTip="Full path to fxf3270.rsf screen layout file"/>
+                                 ToolTip="Full path to ScreenLayouts.xml screen layout file"/>
                     </DockPanel>
                 </Grid>
 

@@ -316,6 +316,283 @@ Namespace Models
                 SetField(_genGeoA, v)
             End Set
         End Property
+
+        ' Discount table rows (up to 5) — the core data on the 3B screen
+        Private _dt1Disc As String = ""
+        Public Property DT1Disc As String
+            Get
+                Return _dt1Disc
+            End Get
+            Set(v As String)
+                SetField(_dt1Disc, v)
+            End Set
+        End Property
+        Private _dt1MinChg As String = ""
+        Public Property DT1MinChg As String
+            Get
+                Return _dt1MinChg
+            End Get
+            Set(v As String)
+                SetField(_dt1MinChg, v)
+            End Set
+        End Property
+        Private _dt1MaxWgt As String = ""
+        Public Property DT1MaxWgt As String
+            Get
+                Return _dt1MaxWgt
+            End Get
+            Set(v As String)
+                SetField(_dt1MaxWgt, v)
+            End Set
+        End Property
+        Private _dt1FloorMin As String = ""
+        Public Property DT1FloorMin As String
+            Get
+                Return _dt1FloorMin
+            End Get
+            Set(v As String)
+                SetField(_dt1FloorMin, v)
+            End Set
+        End Property
+        Private _dt1EffDate As String = ""
+        Public Property DT1EffDate As String
+            Get
+                Return _dt1EffDate
+            End Get
+            Set(v As String)
+                SetField(_dt1EffDate, v)
+            End Set
+        End Property
+        Private _dt1CanDate As String = ""
+        Public Property DT1CanDate As String
+            Get
+                Return _dt1CanDate
+            End Get
+            Set(v As String)
+                SetField(_dt1CanDate, v)
+            End Set
+        End Property
+
+        Private _dt2Disc As String = ""
+        Public Property DT2Disc As String
+            Get
+                Return _dt2Disc
+            End Get
+            Set(v As String)
+                SetField(_dt2Disc, v)
+            End Set
+        End Property
+        Private _dt2MinChg As String = ""
+        Public Property DT2MinChg As String
+            Get
+                Return _dt2MinChg
+            End Get
+            Set(v As String)
+                SetField(_dt2MinChg, v)
+            End Set
+        End Property
+        Private _dt2MaxWgt As String = ""
+        Public Property DT2MaxWgt As String
+            Get
+                Return _dt2MaxWgt
+            End Get
+            Set(v As String)
+                SetField(_dt2MaxWgt, v)
+            End Set
+        End Property
+        Private _dt2FloorMin As String = ""
+        Public Property DT2FloorMin As String
+            Get
+                Return _dt2FloorMin
+            End Get
+            Set(v As String)
+                SetField(_dt2FloorMin, v)
+            End Set
+        End Property
+        Private _dt2EffDate As String = ""
+        Public Property DT2EffDate As String
+            Get
+                Return _dt2EffDate
+            End Get
+            Set(v As String)
+                SetField(_dt2EffDate, v)
+            End Set
+        End Property
+        Private _dt2CanDate As String = ""
+        Public Property DT2CanDate As String
+            Get
+                Return _dt2CanDate
+            End Get
+            Set(v As String)
+                SetField(_dt2CanDate, v)
+            End Set
+        End Property
+
+        Private _dt3Disc As String = ""
+        Public Property DT3Disc As String
+            Get
+                Return _dt3Disc
+            End Get
+            Set(v As String)
+                SetField(_dt3Disc, v)
+            End Set
+        End Property
+        Private _dt3MinChg As String = ""
+        Public Property DT3MinChg As String
+            Get
+                Return _dt3MinChg
+            End Get
+            Set(v As String)
+                SetField(_dt3MinChg, v)
+            End Set
+        End Property
+        Private _dt3MaxWgt As String = ""
+        Public Property DT3MaxWgt As String
+            Get
+                Return _dt3MaxWgt
+            End Get
+            Set(v As String)
+                SetField(_dt3MaxWgt, v)
+            End Set
+        End Property
+        Private _dt3FloorMin As String = ""
+        Public Property DT3FloorMin As String
+            Get
+                Return _dt3FloorMin
+            End Get
+            Set(v As String)
+                SetField(_dt3FloorMin, v)
+            End Set
+        End Property
+        Private _dt3EffDate As String = ""
+        Public Property DT3EffDate As String
+            Get
+                Return _dt3EffDate
+            End Get
+            Set(v As String)
+                SetField(_dt3EffDate, v)
+            End Set
+        End Property
+        Private _dt3CanDate As String = ""
+        Public Property DT3CanDate As String
+            Get
+                Return _dt3CanDate
+            End Get
+            Set(v As String)
+                SetField(_dt3CanDate, v)
+            End Set
+        End Property
+
+        Private _dt4Disc As String = ""
+        Public Property DT4Disc As String
+            Get
+                Return _dt4Disc
+            End Get
+            Set(v As String)
+                SetField(_dt4Disc, v)
+            End Set
+        End Property
+        Private _dt4MinChg As String = ""
+        Public Property DT4MinChg As String
+            Get
+                Return _dt4MinChg
+            End Get
+            Set(v As String)
+                SetField(_dt4MinChg, v)
+            End Set
+        End Property
+        Private _dt4MaxWgt As String = ""
+        Public Property DT4MaxWgt As String
+            Get
+                Return _dt4MaxWgt
+            End Get
+            Set(v As String)
+                SetField(_dt4MaxWgt, v)
+            End Set
+        End Property
+        Private _dt4FloorMin As String = ""
+        Public Property DT4FloorMin As String
+            Get
+                Return _dt4FloorMin
+            End Get
+            Set(v As String)
+                SetField(_dt4FloorMin, v)
+            End Set
+        End Property
+        Private _dt4EffDate As String = ""
+        Public Property DT4EffDate As String
+            Get
+                Return _dt4EffDate
+            End Get
+            Set(v As String)
+                SetField(_dt4EffDate, v)
+            End Set
+        End Property
+        Private _dt4CanDate As String = ""
+        Public Property DT4CanDate As String
+            Get
+                Return _dt4CanDate
+            End Get
+            Set(v As String)
+                SetField(_dt4CanDate, v)
+            End Set
+        End Property
+
+        Private _dt5Disc As String = ""
+        Public Property DT5Disc As String
+            Get
+                Return _dt5Disc
+            End Get
+            Set(v As String)
+                SetField(_dt5Disc, v)
+            End Set
+        End Property
+        Private _dt5MinChg As String = ""
+        Public Property DT5MinChg As String
+            Get
+                Return _dt5MinChg
+            End Get
+            Set(v As String)
+                SetField(_dt5MinChg, v)
+            End Set
+        End Property
+        Private _dt5MaxWgt As String = ""
+        Public Property DT5MaxWgt As String
+            Get
+                Return _dt5MaxWgt
+            End Get
+            Set(v As String)
+                SetField(_dt5MaxWgt, v)
+            End Set
+        End Property
+        Private _dt5FloorMin As String = ""
+        Public Property DT5FloorMin As String
+            Get
+                Return _dt5FloorMin
+            End Get
+            Set(v As String)
+                SetField(_dt5FloorMin, v)
+            End Set
+        End Property
+        Private _dt5EffDate As String = ""
+        Public Property DT5EffDate As String
+            Get
+                Return _dt5EffDate
+            End Get
+            Set(v As String)
+                SetField(_dt5EffDate, v)
+            End Set
+        End Property
+        Private _dt5CanDate As String = ""
+        Public Property DT5CanDate As String
+            Get
+                Return _dt5CanDate
+            End Get
+            Set(v As String)
+                SetField(_dt5CanDate, v)
+            End Set
+        End Property
+
         Private _lastMaintDate As String = "" : Public Property LastMaintDate As String
             Get
                 Return _lastMaintDate
@@ -403,6 +680,32 @@ Namespace Models
             it.rateEff         = ParseDate(RateEff)
             it.classZip        = ParseEnum(Of ScreenScraping.fxfClassZipEnum)(ClsZip, "NA")
             it.genGeoAlt       = ParseEnum(Of ScreenScraping.fxfGenGeoAltrEnum)(GenGeoA, "NA")
+
+            ' Build discount table rows — DT1..DT5 (only include non-empty rows)
+            Dim dc As New FXF3B.DiscCollection()
+            Dim dtDiscs()  As String = {DT1Disc,  DT2Disc,  DT3Disc,  DT4Disc,  DT5Disc}
+            Dim dtMinChgs() As String = {DT1MinChg, DT2MinChg, DT3MinChg, DT4MinChg, DT5MinChg}
+            Dim dtMaxWgts() As String = {DT1MaxWgt, DT2MaxWgt, DT3MaxWgt, DT4MaxWgt, DT5MaxWgt}
+            Dim dtFloors() As String = {DT1FloorMin, DT2FloorMin, DT3FloorMin, DT4FloorMin, DT5FloorMin}
+            Dim dtEffDates() As String = {DT1EffDate, DT2EffDate, DT3EffDate, DT4EffDate, DT5EffDate}
+            Dim dtCanDates() As String = {DT1CanDate, DT2CanDate, DT3CanDate, DT4CanDate, DT5CanDate}
+            For idx As Integer = 0 To 4
+                If String.IsNullOrWhiteSpace(dtDiscs(idx)) Then Continue For
+                Dim dtRow As New FXF3B.discountTable()
+                Dim discVal As Single
+                If Single.TryParse(dtDiscs(idx), discVal) Then dtRow.disc = discVal
+                Dim minChgVal As Single
+                If Single.TryParse(dtMinChgs(idx), minChgVal) Then dtRow.minChargeDisc = minChgVal
+                Dim maxWgtVal As Integer
+                If Integer.TryParse(dtMaxWgts(idx), maxWgtVal) Then dtRow.maxWgt = maxWgtVal
+                Dim floorVal As Single
+                If Single.TryParse(dtFloors(idx), floorVal) Then dtRow.floorMin = floorVal
+                dtRow.effectiveDate = ParseDate(dtEffDates(idx))
+                dtRow.cancelDate    = ParseDate(dtCanDates(idx))
+                dc.Add(dtRow)
+            Next
+            If dc.Count > 0 Then it.itemHeader.discTable = dc
+
             Return it
         End Function
 
@@ -465,6 +768,21 @@ Namespace Models
             RateEff  = FormatDate(it.rateEff)
             ClsZip   = GetEnumName(Of ScreenScraping.fxfClassZipEnum)(it.classZip)
             GenGeoA  = GetEnumName(Of ScreenScraping.fxfGenGeoAltrEnum)(it.genGeoAlt)
+
+            ' Read discount table rows
+            If it.itemHeader.discTable IsNot Nothing Then
+                For dtIdx As Integer = 0 To Math.Min(it.itemHeader.discTable.Count - 1, 4)
+                    Dim dtRow As FXF3B.discountTable = it.itemHeader.discTable(dtIdx)
+                    Select Case dtIdx
+                        Case 0 : DT1Disc = dtRow.disc.ToString() : DT1MinChg = dtRow.minChargeDisc.ToString() : DT1MaxWgt = If(dtRow.maxWgt = ScreenScraping.NULL_INT, "", dtRow.maxWgt.ToString()) : DT1FloorMin = dtRow.floorMin.ToString() : DT1EffDate = FormatDate(dtRow.effectiveDate) : DT1CanDate = FormatDate(dtRow.cancelDate)
+                        Case 1 : DT2Disc = dtRow.disc.ToString() : DT2MinChg = dtRow.minChargeDisc.ToString() : DT2MaxWgt = If(dtRow.maxWgt = ScreenScraping.NULL_INT, "", dtRow.maxWgt.ToString()) : DT2FloorMin = dtRow.floorMin.ToString() : DT2EffDate = FormatDate(dtRow.effectiveDate) : DT2CanDate = FormatDate(dtRow.cancelDate)
+                        Case 2 : DT3Disc = dtRow.disc.ToString() : DT3MinChg = dtRow.minChargeDisc.ToString() : DT3MaxWgt = If(dtRow.maxWgt = ScreenScraping.NULL_INT, "", dtRow.maxWgt.ToString()) : DT3FloorMin = dtRow.floorMin.ToString() : DT3EffDate = FormatDate(dtRow.effectiveDate) : DT3CanDate = FormatDate(dtRow.cancelDate)
+                        Case 3 : DT4Disc = dtRow.disc.ToString() : DT4MinChg = dtRow.minChargeDisc.ToString() : DT4MaxWgt = If(dtRow.maxWgt = ScreenScraping.NULL_INT, "", dtRow.maxWgt.ToString()) : DT4FloorMin = dtRow.floorMin.ToString() : DT4EffDate = FormatDate(dtRow.effectiveDate) : DT4CanDate = FormatDate(dtRow.cancelDate)
+                        Case 4 : DT5Disc = dtRow.disc.ToString() : DT5MinChg = dtRow.minChargeDisc.ToString() : DT5MaxWgt = If(dtRow.maxWgt = ScreenScraping.NULL_INT, "", dtRow.maxWgt.ToString()) : DT5FloorMin = dtRow.floorMin.ToString() : DT5EffDate = FormatDate(dtRow.effectiveDate) : DT5CanDate = FormatDate(dtRow.cancelDate)
+                    End Select
+                Next
+            End If
+
             LastMaintDate = FormatDate(it.lastMaintenanceDate)
             OperatorId = it.operatorId
             Revision   = it.revision

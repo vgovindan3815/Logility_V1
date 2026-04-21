@@ -21,8 +21,9 @@ The emulator session is created and held open for the lifetime of the app.
 | Pattern | MVVM with `INotifyPropertyChanged` |
 | IDE | VSCode + MSBuild (no Visual Studio required) |
 | Target OS | Windows x64 only |
-| Emulator | Bluezone (BZWHLLLIB COM API) |
+| Emulator | FedEx_Emu mode (native tn3270_dll.dll) |
 
+**Connection Mode:** Uses `FedEx_Emu` (native tn3270 DLL) rather than Bluezone COM API.  
 **Never suggest migrating to .NET 5+ or to C#. Always stay on .NET Framework 4.8 VB.NET.**
 
 ---
@@ -81,11 +82,47 @@ FXF3A_Tool/
     ├── FedEx.PABST.SS.Screens.FXF3F.dll
     ├── FedEx.PABST.SS.Screens.FXF3G.dll
     ├── FedEx.PABST.SS.Exceptions.dll
-    ├── Interop.BZWHLLLIB.dll
-    └── fxf3270.rsf
+    ├── Interop.BZWHLLLIB.dll    ← NOT USED (FedEx_Emu mode)
+    ├── tn3270_dll.dll           ← REQUIRED for FedEx_Emu mode
+    └── ScreenLayouts.xml
 ```
 
 ---
+
+## DLL Deployment Requirements
+
+### FedEx_Emu Mode (Current Implementation)
+
+The application uses `ScreenScraping.sslibTypeType.FedEx_Emu` which requires a native `tn3270_dll.dll`:
+
+**Required DLL Location:**
+```
+E:\fedex\tn3270\tn3270_dll.dll
+```
+
+**Setup Steps:**
+1. Create virtual E: drive: `subst e: C:\temp`
+2. Create directory: `C:\temp\fedex\tn3270\`
+3. Copy `tn3270_dll.dll` to `C:\temp\fedex\tn3270\tn3270_dll.dll`
+
+**Alternative Locations** (searched in order):
+- `C:\Program Files\fedex\tn3270\tn3270_dll.dll`
+- `C:\fedex\tn3270_dll.dll`
+- Current directory variants
+
+**Note:** The `Interop.BZWHLLLIB.dll` is NOT used in FedEx_Emu mode despite being in deploy/.
+
+### Troubleshooting
+
+**"Couldn't find emulator dll" Error:**
+- Ensure `tn3270_dll.dll` is at `E:\fedex\tn3270\tn3270_dll.dll`
+- Verify E: drive is mapped: `subst e: C:\temp`
+- Check DLL architecture (must be x64)
+
+**Connection Issues:**
+- Verify RSF file path in LoginViewModel
+- Check mainframe credentials and host connectivity
+- Ensure FedEx network access
 
 ## FedEx screen scraping library — key facts
 
@@ -102,7 +139,7 @@ FedEx.PABST.SS.Exceptions               ← typed exceptions
 ```vb
 ' Create session — this connects Bluezone and logs into CICS
 Dim ss As New ScreenScraping(
-    ScreenScraping.sslibTypeType.Bluezone,
+    ScreenScraping.sslibTypeType.FedEx_Emu,
     hostConnectionString,       ' e.g. "hostname:23"
     screenLayoutXMLPath,        ' path to fxf3270.rsf
     waitTimeoutMs,              ' e.g. 30000

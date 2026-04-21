@@ -9,13 +9,33 @@ for the first time. Follow the sections in order.
 
 Before you attempt a connection, confirm you have all of the following.
 
-1. **Bluezone terminal emulator installed.**
-   Bluezone must be installed on the machine running the tool. Use the FedEx-provided
-   license. You do **not** need to configure a Bluezone session manually — the tool
-   launches and controls Bluezone entirely through its COM API (`BZWHLLLIB`), which is
-   registered automatically when Bluezone is installed.
+1. **Windows 64-bit (x64) operating system.**
+   The tool is compiled as a 64-bit executable. It does not run on 32-bit Windows.
+   Windows 10 (21H2 or later) or Windows 11 is recommended.
 
-2. **Mainframe access granted.**
+2. **.NET Framework 4.8 runtime installed.**
+   The tool targets .NET Framework 4.8. On Windows 11 this is pre-installed. On
+   Windows 10 you may need to install it manually. To verify, open a command prompt
+   and run:
+   ```
+   reg query "HKLM\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" /v Release
+   ```
+   A value of **528040 or higher** confirms .NET Framework 4.8 is present. If it is
+   missing, download the installer from Microsoft and install before proceeding.
+
+3. **Bluezone terminal emulator installed.**
+   Bluezone must be installed on the machine running the tool. Use the FedEx-provided
+   installer and license key. You do **not** need to configure a Bluezone session
+   manually — the tool launches and controls Bluezone entirely through its COM API
+   (`BZWHLLLIB`), which is registered automatically when Bluezone is installed.
+
+   > **Important:** The tool runs as a 64-bit process. Bluezone's COM server
+   > (`BZWHLLLIB`) must be registered in the 64-bit COM registry. Modern Bluezone
+   > versions (8.x and later) support 64-bit registration. If you have an older
+   > 32-bit-only Bluezone installation you will receive a **"Class not registered"**
+   > error — contact FedEx IT to obtain a compatible version.
+
+4. **Mainframe access granted.**
    Your Active Directory / network account must have been granted access to the
    **FDXF CICS region**. If you have not yet been granted access, raise an IT ticket
    with FedEx mainframe operations requesting:
@@ -23,21 +43,21 @@ Before you attempt a connection, confirm you have all of the following.
    - A terminal user ID (and, if separate, a Logility user ID)
    - The TN3270 host address and port for your environment
 
-3. **TN3270 host address and port.**
+5. **TN3270 host address and port.**
    Obtain this from your FedEx IT team. It will be in the form `hostname:port` or
    `ip-address:port`, e.g. `mainframe.fedex.com:23`. Port 23 is the standard Telnet
    port; your environment may use a different port.
 
-4. **Your terminal user ID and Logility user ID.**
+6. **Your terminal user ID and Logility user ID.**
    These are provided by your FedEx IT team when mainframe access is granted. In many
    environments both IDs are the same — confirm with IT if you are unsure.
 
-5. **The `fxf3270.rsf` layout file.**
+7. **The `ScreenLayouts.xml` layout file.**
    This file ships in the `deploy\` folder of the tool. It defines the 3270 screen
    field map that the screen-scraping library uses to read and write terminal fields.
    Do **not** modify or rename this file.
 
-6. **FedEx screen-scraping DLLs in the `deploy\` folder.**
+8. **FedEx screen-scraping DLLs in the `deploy\` folder.**
    See Section 2 for the full list. These DLLs are proprietary FedEx libraries and
    are **not** included in the source repository. They must be copied into `deploy\`
    before you build or run the tool.
@@ -46,30 +66,72 @@ Before you attempt a connection, confirm you have all of the following.
 
 ## Section 2: Verifying the `deploy\` Folder
 
-The `deploy\` folder must contain exactly the following 10 DLLs **and** the RSF layout
+The `deploy\` folder must contain exactly the following **20 DLLs** and the RSF layout
 file before the tool will build and run successfully.
 
 ```
 deploy\
-├── FedEx.PABST.SS.SSLib.dll              ← core screen-scraping session library
-├── FedEx.PABST.SS.Screens.FXF3A.dll     ← screen class: Customer discount items
-├── FedEx.PABST.SS.Screens.FXF3B.dll     ← screen class: Discounts by State/Terminal
-├── FedEx.PABST.SS.Screens.FXF3C.dll     ← screen class: Geography discounts
-├── FedEx.PABST.SS.Screens.FXF3D.dll     ← screen class: Product discounts
-├── FedEx.PABST.SS.Screens.FXF3E.dll     ← screen class: Customer rates
-├── FedEx.PABST.SS.Screens.FXF3F.dll     ← screen class: Discounts/adjustments
-├── FedEx.PABST.SS.Screens.FXF3G.dll     ← screen class: Charges/allowances
-├── FedEx.PABST.SS.Exceptions.dll        ← typed exception classes
-├── Interop.BZWHLLLIB.dll                ← COM interop wrapper for Bluezone
-└── fxf3270.rsf                          ← 3270 screen field layout file
+│
+│  FedEx PABST screen-scraping libraries (proprietary — obtain from FedEx IT)
+├── FedEx.PABST.SS.SSLib.dll                  ← core session library (x64 managed)
+├── FedEx.PABST.SS.Exceptions.dll             ← typed exception classes (x64 managed)
+├── FedEx.PABST.SS.Screens.FXF3A.dll         ← screen: Customer discount items
+├── FedEx.PABST.SS.Screens.FXF3B.dll         ← screen: Discounts by State/Terminal
+├── FedEx.PABST.SS.Screens.FXF3C.dll         ← screen: Geography discounts
+├── FedEx.PABST.SS.Screens.FXF3D.dll         ← screen: Product discounts
+├── FedEx.PABST.SS.Screens.FXF3E.dll         ← screen: Customer rates
+├── FedEx.PABST.SS.Screens.FXF3F.dll         ← screen: Discounts/adjustments
+├── FedEx.PABST.SS.Screens.FXF3G.dll         ← screen: Charges/allowances
+├── FedEx.PABST.SS.Screens.FXF3J.dll         ← screen: Copy customer/national account
+├── FedEx.PABST.SS.Screens.FXF3K.dll         ← screen: State matrix
+├── FedEx.PABST.SS.Screens.FXF3M.dll         ← screen: Handling unit allowance
+├── FedEx.PABST.SS.Screens.FXF3N.dll         ← screen: Unit rates  ⚠ see note below
+├── FedEx.PABST.SS.Screens.FXF4M.dll         ← screen: Earned discount
+│
+│  Bluezone COM interop (included with FedEx library package)
+├── Interop.BZWHLLLIB.dll                     ← .NET COM interop wrapper for Bluezone
+│
+│  NPOI — open-source Excel read/write library (included with tool)
+├── NPOI.Core.dll
+├── NPOI.OOXML.dll
+├── NPOI.OpenXml4Net.dll
+├── NPOI.OpenXmlFormats.dll
+├── ICSharpCode.SharpZipLib.dll               ← NPOI dependency for zip/xlsx handling
+│
+│  Screen layout file (included with FedEx library package)
+└── ScreenLayouts.xml                               ← 3270 screen field map (do not modify)
 ```
+
+> ⚠ **FXF3N one-time patch required.**
+> `FedEx.PABST.SS.Screens.FXF3N.dll` is shipped with an x86-only architecture flag
+> that prevents it from loading in the tool's 64-bit process. A one-time fix is needed
+> after copying this DLL into `deploy\`:
+>
+> 1. Open a **Developer Command Prompt for VS 2019/2022** (or any prompt with the
+>    .NET Framework SDK tools on the PATH).
+> 2. Navigate to the `deploy\` folder.
+> 3. Run:
+>    ```
+>    corflags "FedEx.PABST.SS.Screens.FXF3N.dll" /32BITREQ- /Force
+>    ```
+> 4. The warning `"The specified file is strong name signed..."` is expected and safe
+>    to ignore — the .NET runtime does not enforce strong-name signatures for
+>    local desktop applications.
+>
+> If `corflags.exe` is not on your PATH, the full path is usually:
+> `C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\corflags.exe`
+>
+> This patch needs to be applied only **once per machine**. It survives rebuilds
+> because `deploy\` is not cleaned by MSBuild.
 
 **Verification steps:**
 
 1. Open File Explorer and navigate to the `deploy\` folder inside the project root.
-2. Confirm all 10 `.dll` files are present.
-3. Confirm `fxf3270.rsf` is present.
-4. If any file is missing, contact your FedEx IT team or the person who provided the
+2. Confirm all 20 `.dll` files are present.
+3. Confirm `ScreenLayouts.xml` is present.
+4. Confirm the FXF3N patch has been applied (run `corflags FXF3N.dll` and verify
+   `32BITREQ : 0`).
+5. If any file is missing, contact your FedEx IT team or the person who provided the
    tool to obtain the missing files. The tool will not build without the DLLs and will
    not connect without the RSF file.
 
@@ -183,12 +245,15 @@ table below to diagnose and fix common problems.
 | Error / Symptom | Likely Cause | Fix |
 |---|---|---|
 | `"Connection failed. Check credentials and host."` | Wrong host/port, wrong user ID or password, or the mainframe host is not reachable from your machine. | Double-check the Host field (include port). Verify your user ID and password with FedEx IT. Test that you can reach the host with `ping` or `telnet hostname port`. |
-| `"Bluezone not found"` or a COM exception / `"Class not registered"` | Bluezone is not installed, or its COM component (`BZWHLLLIB`) is not registered in the Windows registry. | Reinstall Bluezone using the FedEx-provided installer. After reinstalling, retry the connection. |
+| `"Class not registered"` or `"Retrieving the COM class factory for component with CLSID {4EB962C3...} failed"` | Bluezone is not installed, or the Bluezone COM server is not registered in the 64-bit Windows registry. | Reinstall Bluezone using the FedEx-provided installer. If you already have an older 32-bit Bluezone installation, it must be replaced with a 64-bit-compatible version — contact FedEx IT. After reinstalling, retry the connection. |
+| `"Could not load file or assembly 'FXF3N'... incorrect format"` | The one-time `corflags` patch for `FXF3N.dll` has not been applied. | Apply the FXF3N patch described in Section 2 and restart the tool. |
+| `"Could not load file or assembly '...'... incorrect format"` for any other DLL | A DLL in `deploy\` has the wrong architecture for this machine (should not occur if DLLs were obtained from the standard package). | Re-obtain the DLL from FedEx IT. Verify using `corflags <dll>` that all FedEx DLLs show `ILONLY : 1`. |
 | Connection hangs for a long time, then times out | Network latency to the mainframe is high, or a firewall is silently dropping the connection. | Increase the Timeout field to `60000`. Confirm with IT that port 23 (or your configured port) is open to the mainframe host from your machine or VPN. |
 | `"CICS not available"` or the screen shows a CICS unavailable message | The FDXF CICS region is down or restarting on the mainframe. | This is a mainframe-side issue. Wait a few minutes and retry. If the problem persists, contact FedEx mainframe operations. |
 | `"Invalid user ID"` or `"User not authorized"` | Your mainframe ID does not have access to the FDXF CICS region. | Raise an IT ticket requesting CICS access for user ID `<your UID T>` to the FDXF region. |
 | Bluezone window opens but never logs in; connection eventually times out | The RSF layout file path is wrong, or the RSF file is corrupt. | Verify the RSF Path field points to a valid `fxf3270.rsf` file. Confirm the file size is non-zero. |
 | Connection succeeds but immediately drops | Your terminal password may have expired on the mainframe. | Log in directly via a standalone Bluezone or Rumba session to check and reset your mainframe password, then retry. |
+| `.NET Framework` version error at startup | .NET Framework 4.8 is not installed on the machine. | Install .NET Framework 4.8 from Microsoft. See Section 1, item 2 for the registry check command. |
 
 ---
 
@@ -237,15 +302,15 @@ or contact the tool administrator.
 
 ---
 
-## Section 10: Using Rumba Instead of Bluezone (If Required)
+## Section 10: Using FedEx_Emu Instead of Bluezone (If Required)
 
 The current build is configured to use **Bluezone** as the terminal emulator. If
-your environment requires **Rumba** or **MicroFocus Rumba** instead, a one-line
+your environment requires **FedEx_Emu** instead, a one-line
 code change is required in the session manager.
 
 1. Open `Core\SessionManager.vb` in a text editor.
 2. Locate the `ScreenScraping` constructor call inside `ConnectAsync` (around line 124).
-3. Change the first argument from `sslibTypeType.Bluezone` to `sslibTypeType.Rumba`:
+3. Change the first argument from `sslibTypeType.Bluezone` to `sslibTypeType.FedEx_Emu`:
 
    ```vb
    ' Before (Bluezone):
@@ -253,19 +318,19 @@ code change is required in the session manager.
        ScreenScraping.sslibTypeType.Bluezone,
        ...
 
-   ' After (Rumba):
+      ' After (FedEx_Emu):
    _ss = New ScreenScraping(
-       ScreenScraping.sslibTypeType.Rumba,
+         ScreenScraping.sslibTypeType.FedEx_Emu,
        ...
    ```
 
 4. Rebuild the project (see Section 4, step 1).
-5. Ensure Rumba is installed on the machine. Like Bluezone, Rumba must have its COM
-   API registered. Reinstalling Rumba from the vendor installer ensures this.
+5. Ensure the emulator runtime required by FedEx_Emu is installed on the machine and
+   its COM/API components are registered.
 6. The rest of the connection procedure is identical to Sections 5–9.
 
-> Contact your FedEx IT team if you are unsure which emulator your environment
-> supports, or if you need a license for Rumba.
+> Contact your FedEx IT team if you are unsure which emulator/runtime your environment
+> supports for FedEx_Emu.
 
 ---
 
@@ -273,14 +338,26 @@ code change is required in the session manager.
 
 Use this checklist before your first connection attempt:
 
-- [ ] Bluezone is installed (visible in Apps/Programs and Features)
-- [ ] Mainframe IT ticket completed; access to FDXF CICS region granted
+**Machine prerequisites**
+- [ ] Windows 10 (21H2+) or Windows 11, 64-bit
+- [ ] .NET Framework 4.8 installed (`Release` registry value ≥ 528040)
+- [ ] Bluezone installed and visible in Apps / Programs and Features
+- [ ] Bluezone version supports 64-bit COM registration (8.x or later)
+
+**FedEx library setup**
+- [ ] All 20 DLLs present in `deploy\` (see Section 2 for full list)
+- [ ] `ScreenLayouts.xml` present in `deploy\`
+- [ ] FXF3N one-time patch applied: `corflags FXF3N.dll /32BITREQ- /Force`
+  (verify with `corflags FXF3N.dll` → `32BITREQ : 0`)
+
+**Mainframe access**
+- [ ] IT ticket completed; access to FDXF CICS region granted
 - [ ] TN3270 host address and port obtained from FedEx IT
-- [ ] Terminal user ID and Logility user ID obtained
-- [ ] All 10 DLLs present in `deploy\`
-- [ ] `fxf3270.rsf` present in `deploy\`
+- [ ] Terminal user ID (UID T) and Logility user ID (UID L) obtained
+
+**First run**
 - [ ] Project built successfully (`msbuild ... /p:Configuration=Release`)
-- [ ] Connection bar fields filled in (Host, System, UID T, UID L, RSF Path, Timeout)
+- [ ] Connection bar filled in (Host, System, UID T, UID L, RSF Path, Timeout)
 - [ ] CONNECT clicked; Terminal and Logility passwords entered when prompted
 - [ ] Status badge shows green (Connected)
 - [ ] Test GET on FXF3A returns `✓` STATUS

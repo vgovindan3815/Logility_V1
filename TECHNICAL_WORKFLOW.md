@@ -64,7 +64,7 @@ LoginViewModel.DoConnectAsync(pwdT, pwdL)
 │   ├─ Raises StatusChanged: "Connecting to <host>..."
 │   │
 │   ├─ new ScreenScraping(
-│   │      sslibTypeType.Bluezone,   ← emulator type
+│   │      sslibTypeType.FedEx_Emu,  ← emulator type
 │   │      host,                     ← e.g. "mfhost.example.com:23"
 │   │      xmlPath,                  ← path to fxf3270.rsf screen layout
 │   │      timeoutMs,                ← e.g. 30000 ms

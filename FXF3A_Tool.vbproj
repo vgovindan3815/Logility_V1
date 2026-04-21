@@ -112,21 +112,19 @@
     </Reference>
   </ItemGroup>
 
-  <!-- ── Copy fxf3270.rsf and Bluezone interop to output ── -->
+  <!-- ── Copy screen layout XML, fxf3270.rsf and tn3270_dll.dll to output ── -->
   <ItemGroup>
+    <Content Include="Screenlayouts\ScreenLayouts.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="deploy\fxf3270.rsf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <!-- Interop.BZWHLLLIB.dll — COM interop wrapper for Bluezone.      -->
-    <!-- Must be referenced (not Content) so it copies flat to bin\     -->
-    <!-- alongside the exe. Obtain from Bluezone installation dir.      -->
-  </ItemGroup>
-  <ItemGroup Condition="Exists('deploy\Interop.BZWHLLLIB.dll')">
-    <Reference Include="Interop.BZWHLLLIB">
-      <HintPath>deploy\Interop.BZWHLLLIB.dll</HintPath>
-      <Private>True</Private>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </Reference>
+    <!-- tn3270_dll.dll — Native DLL for FedEx_Emu mode.      -->
+    <!-- Must be copied to output directory for LoadLibrary. -->
+    <Content Include="deploy\tn3270_dll.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <!-- ── Application entry point ───────────────────────────── -->
@@ -218,6 +216,7 @@
     <Compile Include="Core\CsvHelper.vb" />
     <Compile Include="Core\ExcelLoader.vb" />
     <Compile Include="Core\Exceptions.vb" />
+    <Compile Include="Core\DebugLogger.vb" />
     <Compile Include="Core\RelayCommand.vb" />
     <Compile Include="Core\SessionManager.vb" />
 
@@ -353,5 +352,12 @@
   </ItemGroup>
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
+
+  <!-- Ensure ScreenLayouts.xml is copied to output regardless of MSBuild version -->
+  <Target Name="CopyScreenLayouts" AfterTargets="Build">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Screenlayouts\ScreenLayouts.xml"
+          DestinationFolder="$(OutputPath)"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>
