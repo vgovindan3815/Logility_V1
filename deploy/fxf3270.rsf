@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+  <screen name="FREIGHTLOGIN">
+    <ScreenField name="banner" x="1" y="29" length="14" matchText="Signon to CICS"/>
+    <ScreenField name="bannerT" x="1" y="23" length="36" matchText="F R E I G H T    M A N A G E M E N T"/>
+    <ScreenField name="d_field" x="23" y="80" length="1" matchText=""/>
+    <ScreenField name="logilityPrimaryMenuScreen" x="2" y="2" length="21" matchText="*BASE RATE PLUS - FF*"/>
+    <ScreenField name="logilityProcessingTerminated" x="24" y="2" length="21" matchText="PROCESSING TERMINATED"/>
+    <ScreenField name="password" x="11" y="26" length="0" matchText="Password"/>
+    <ScreenField name="passwordT" x="7" y="43" length="0" matchText="PASSWORD"/>
+    <ScreenField name="pricingPrimaryMenuScreen" x="3" y="32" length="20" matchText="AMERICAN FREIGHTWAYS"/>
+    <ScreenField name="primaryPassthroughScreen" x="2" y="30" length="19" matchText="Pricing Publication"/>
+    <ScreenField name="ratingSubSystemMenu" x="1" y="30" length="21" matchText="RATING SUBSYSTEM MENU"/>
+    <ScreenField name="successLoginScreen" x="24" y="12" length="19" matchText="Sign-on is complete"/>
+    <ScreenField name="userId" x="10" y="11" length="6" matchText="Userid"/>
+    <ScreenField name="userIdT" x="7" y="2" length="7" matchText="USER ID"/>
+    <ScreenMessage name="LOGILITY_PRIMARY_MENU" msg="dsn6"/>
+    <ScreenMessage name="LOGOFF_STRING" msg="cesf logoff"/>
+    <ScreenMessage name="PRICING_PRIMARY_MENU" msg="tfms"/>
+    <ScreenMessage name="PRICING_PRIMARY_MENU1" msg="E00"/>
+    <ScreenMessage name="PRIMARY_PASSTHROUGH_SCREEN" msg="PA15"/>
+  </screen>
+  <screen name="FXF3A">
+    <ScreenField name="actionInd" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="applyArbs" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="authority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="classZip" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="classZipAuthority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="classZipNumber" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="classZipSection" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="collectInbound" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="collectOutbound" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="country" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="currency" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="edAgg" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="excClass" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="excClassMaxWgt" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fak" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fsAuthority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fsItem" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fsItemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fsNumber" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="genGeoAlt" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoCountry1" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoCountry2" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoDir1" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoDir2" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoName1" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoName2" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoState1" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoState2" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoType1" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoType2" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="incExempt" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="inter" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="item" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="itemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="lastMaintenanceDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="matrix" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="maxWgt" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="minWgt" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc100" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc110" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc125" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc150" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc175" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc200" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc250" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc300" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc400" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc50" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc500" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc55" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc60" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc65" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc70" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc77_5" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc85" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nmfc92_5" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="number" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="operatorId" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="payRule1" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="payRule2" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="prepaidInbound" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="prepaidOutbound" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="ratesEffectiveOnDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="ratesEffectiveOnMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="ratesEffectiveOnYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="releaseMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="revision" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="servDaysHigh" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="servDaysLow" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="thirdParty" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="typeHaul" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="ACCOUNT_NOT_FOUND" msg="ACCOUNT NOT FOUND"/>
+    <ScreenMessage name="ADD_SUCCESS" msg="RECORD ADDED"/>
+    <ScreenMessage name="CHANGE_SUCCESS" msg="RECORD CHANGED"/>
+    <ScreenMessage name="DELETE_SUCCESS" msg="RECORD DELETED"/>
+    <ScreenMessage name="END_OF_ACCOUNTS" msg="END OF ACCOUNTS"/>
+    <ScreenMessage name="ITEM_NOT_RELEASED" msg="ITEM NOT RELEASED"/>
+    <ScreenMessage name="NO_DISC_RECORDS" msg="NO DISCOUNT RECORDS"/>
+    <ScreenMessage name="RELEASE_SUCCESS" msg="ITEM RELEASED"/>
+    <ScreenMessage name="SUCCESS_INQUIRY" msg="INQUIRY SUCCESSFUL"/>
+  </screen>
+  <screen name="FXF3B">
+    <ScreenField name="actionInd" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="authority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="baseRatePlus" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="classZip" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="classZipAuthority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="classZipNumber" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="classZipSection" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="collectInbound" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="collectOutbound" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="dsnm1st3b" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="excClass" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="excClassMaxWgt" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="genGeoAlt" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoTbl1Dir" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoTbl1PlusMinus" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoTbl1Type" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoTbl2Dir" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoTbl2PlusMinus" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="geoTbl2Type" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="item" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="itemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="lastMaintenanceDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="logilityInc" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="number" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="operatorId" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="part" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="prepaidInbound" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="prepaidOutbound" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="rateEffDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="rateEffMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="rateEffYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="revision" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenTitle" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="ACCOUNT_NOT_FOUND" msg="ACCOUNT NOT FOUND"/>
+    <ScreenMessage name="ADD_SUCCESS" msg="RECORD ADDED"/>
+    <ScreenMessage name="CHANGE_SUCCESS" msg="RECORD CHANGED"/>
+    <ScreenMessage name="DELETE_SUCCESS" msg="RECORD DELETED"/>
+    <ScreenMessage name="INQUIRE_SUCCESS" msg="RECORD INQUIRY"/>
+    <ScreenMessage name="ITEM_NOT_RELEASED" msg="ITEM NOT RELEASED"/>
+    <ScreenMessage name="NO_DISC_RECORDS" msg="NO DISCOUNT RECORDS"/>
+    <ScreenMessage name="RELEASE_SUCCESS" msg="ITEM RELEASED"/>
+  </screen>
+  <screen name="FXF3C">
+    <ScreenField name="actionInd" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="authority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="item" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="itemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="lastMaintenanceDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="number" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="operatorId" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="part" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="revision" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenTitle" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="servDaysHigh" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="servDaysLow" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="ACCOUNT_NOT_FOUND" msg="ACCOUNT NOT FOUND"/>
+    <ScreenMessage name="ADD_SUCCESS" msg="RECORD ADDED"/>
+    <ScreenMessage name="CHANGE_SUCCESS" msg="RECORD CHANGED"/>
+    <ScreenMessage name="DELETE_SUCCESS" msg="RECORD DELETED"/>
+    <ScreenMessage name="INQUIRE_SUCCESS" msg="RECORD INQUIRY"/>
+    <ScreenMessage name="ITEM_NOT_RELEASED" msg="ITEM NOT RELEASED"/>
+    <ScreenMessage name="RECORD_NOT_FOUND" msg="RECORD NOT FOUND"/>
+    <ScreenMessage name="RELEASE_SUCCESS" msg="ITEM RELEASED"/>
+  </screen>
+  <screen name="FXF3D">
+    <ScreenField name="actionInd" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="authority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="baseRatePlus" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="dsnm1pr3d" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="exceptionClass" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="exceptionClassMaxWt" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="item" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="itemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="lastMaintenanceDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="logilityInc" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="number" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="operatorId" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="part" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="revision" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenTitle" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="ACCOUNT_NOT_FOUND" msg="ACCOUNT NOT FOUND"/>
+    <ScreenMessage name="ADD_SUCCESS" msg="RECORD ADDED"/>
+    <ScreenMessage name="CHANGE_SUCCESS" msg="RECORD CHANGED"/>
+    <ScreenMessage name="DELETE_SUCCESS" msg="RECORD DELETED"/>
+    <ScreenMessage name="INQUIRE_SUCCESS" msg="RECORD INQUIRY"/>
+    <ScreenMessage name="ITEM_NOT_RELEASED" msg="ITEM NOT RELEASED"/>
+    <ScreenMessage name="NO_DISC_RECORDS" msg="NO DISCOUNT RECORDS"/>
+    <ScreenMessage name="RELEASE_SUCCESS" msg="ITEM RELEASED"/>
+  </screen>
+  <screen name="FXF3E">
+    <ScreenField name="actionInd" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="alternation" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="authority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="baseRatePlus" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="classRates" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="clsTrfAuthority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="clsTrfNumber" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="clsTrfSection" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="comments" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="condition" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="dsnm2mb3e" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="item" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="itemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="lastMaintenanceDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="logilityInc" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="number" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="numberOfPages" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="operatorId" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="part" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="prepaidOrCollect" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="rateManually" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="ratesEffectiveOnDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="ratesEffectiveOnMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="ratesEffectiveOnYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="revision" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenTitle" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="ADD_SUCCESS" msg="RECORD ADDED"/>
+    <ScreenMessage name="CHANGE_SUCCESS" msg="RECORD CHANGED"/>
+    <ScreenMessage name="DELETE_SUCCESS" msg="RECORD DELETED"/>
+    <ScreenMessage name="INQUIRE_SUCCESS" msg="RECORD INQUIRY"/>
+  </screen>
+  <screen name="FXF3F">
+    <ScreenField name="actionInd" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="adjustmentType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="applicationRule" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="authority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="baseRatePlus" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="comments" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="condition" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="dsnm3pp3f" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="item" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="itemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="lastMaintenanceDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="logilityInc" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="number" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="operatorId" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="part" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="prepaidOrCollect" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="revision" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenTitle" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="ACCOUNT_NOT_FOUND" msg="ACCOUNT NOT FOUND"/>
+    <ScreenMessage name="ADD_SUCCESS" msg="RECORD ADDED"/>
+    <ScreenMessage name="CHANGE_SUCCESS" msg="RECORD CHANGED"/>
+    <ScreenMessage name="DELETE_SUCCESS" msg="RECORD DELETED"/>
+    <ScreenMessage name="INQUIRE_SUCCESS" msg="RECORD INQUIRY"/>
+    <ScreenMessage name="ITEM_NOT_RELEASED" msg="ITEM NOT RELEASED"/>
+    <ScreenMessage name="NO_DISC_RECORDS" msg="NO DISCOUNT RECORDS"/>
+    <ScreenMessage name="RELEASE_SUCCESS" msg="ITEM RELEASED"/>
+  </screen>
+  <screen name="FXF3G">
+    <ScreenField name="actionInd" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="authority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="baseRatePlus" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="comments" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="dsnm1ap3g" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="item" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="itemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="lastMaintenanceDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="logilityInc" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="number" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="operatorId" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="part" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="prepaidOrCollect" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="revision" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenTitle" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="ACCOUNT_NOT_FOUND" msg="ACCOUNT NOT FOUND"/>
+    <ScreenMessage name="ADD_SUCCESS" msg="RECORD ADDED"/>
+    <ScreenMessage name="CHANGE_SUCCESS" msg="RECORD CHANGED"/>
+    <ScreenMessage name="DELETE_SUCCESS" msg="RECORD DELETED"/>
+    <ScreenMessage name="INQUIRE_SUCCESS" msg="RECORD INQUIRY"/>
+    <ScreenMessage name="ITEM_NOT_RELEASED" msg="ITEM NOT RELEASED"/>
+    <ScreenMessage name="NO_DISC_RECORDS" msg="NO DISCOUNT RECORDS"/>
+    <ScreenMessage name="RELEASE_SUCCESS" msg="ITEM RELEASED"/>
+  </screen>
+  <screen name="FXF3J">
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="copy01" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="copy02" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="copy03" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="copy04" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="copy05" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="copy06" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="copy07" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="copy08" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fromAuth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fromCustName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fromCustType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fromItem" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fromItemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fromNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="fromPart" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenTitle" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toAuth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toC" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toCustName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toCustType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toEffDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toEffDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toEffDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toItem" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toItemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toPart" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toRel" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="toU" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="COPY01_ERR1" msg="COPY ERROR 1"/>
+    <ScreenMessage name="COPY01_ERR2" msg="COPY ERROR 2"/>
+    <ScreenMessage name="COPY01_ERR3" msg="COPY ERROR 3"/>
+    <ScreenMessage name="COPY01_ERR4" msg="COPY ERROR 4"/>
+    <ScreenMessage name="COPY01_SUCCESS" msg="COPY SUCCESSFUL"/>
+  </screen>
+  <screen name="FXF3K">
+    <ScreenField name="actionInd" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="baseRatePlus" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="dsnm1bm3k" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="firstColName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="firstRowName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="lastMaintenanceDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="logilityInc" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="revision" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenTitle" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="stateMatrixName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theOperator" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="ADD_SUCCESS" msg="RECORD ADDED"/>
+    <ScreenMessage name="CHANGE_SUCCESS" msg="RECORD CHANGED"/>
+    <ScreenMessage name="DELETE_SUCCESS" msg="RECORD DELETED"/>
+    <ScreenMessage name="ERR_300" msg="ERROR 300"/>
+    <ScreenMessage name="ERR_ADD_RECORD_EXISTS" msg="RECORD ALREADY EXISTS"/>
+    <ScreenMessage name="INQUIRE_SUCCESS" msg="RECORD INQUIRY"/>
+  </screen>
+  <screen name="FXF3M">
+    <ScreenField name="actionInd" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="authority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="baseRatePlus" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="comments" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="condition" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="dsnm1h33m" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="huClsNumber" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="huClsYN" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="huHighestVolByWgt" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="huHighRate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="huLowRate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="hUnitCalculationRule" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="hUnitType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="item" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="itemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="lastMaintenanceDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="logilityInc" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="maximumNumberOfHUnits" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="maximumPerHUnitWeight" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="maximumTotalHUnitWeight" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="name" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="number" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="operatorId" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="part" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="prepaidOrCollect" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="rateManual" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="revision" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenTitle" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="ACCOUNT_NOT_FOUND" msg="ACCOUNT NOT FOUND"/>
+    <ScreenMessage name="ADD_SUCCESS" msg="RECORD ADDED"/>
+    <ScreenMessage name="CHANGE_SUCCESS" msg="RECORD CHANGED"/>
+    <ScreenMessage name="DELETE_SUCCESS" msg="RECORD DELETED"/>
+    <ScreenMessage name="INQUIRE_SUCCESS" msg="RECORD INQUIRY"/>
+    <ScreenMessage name="ITEM_NOT_RELEASED" msg="ITEM NOT RELEASED"/>
+    <ScreenMessage name="NO_DISC_RECORDS" msg="NO DISCOUNT RECORDS"/>
+    <ScreenMessage name="RELEASE_SUCCESS" msg="ITEM RELEASED"/>
+  </screen>
+  <screen name="FXF3N">
+    <ScreenField name="actionInd" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="alternation" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="authority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="baseRatePlus" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="classRates" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="clsTrfAuthority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="clsTrfNumber" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="clsTrfSection" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="comments" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="condition" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="dsnm1hr3n" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="hUnitType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="item" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="itemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="lastMaintenanceDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="logilityInc" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="mileageAuthority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="mileageNumber" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="mileageRangeHigh" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="mileageRangeLow" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="number" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="operatorId" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="part" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="prepaidOrCollect" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="ratesEffectiveOnDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="ratesEffectiveOnMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="ratesEffectiveOnYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="revision" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenTitle" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="ACCOUNT_NOT_FOUND" msg="ACCOUNT NOT FOUND"/>
+    <ScreenMessage name="ADD_SUCCESS" msg="RECORD ADDED"/>
+    <ScreenMessage name="CHANGE_SUCCESS" msg="RECORD CHANGED"/>
+    <ScreenMessage name="DELETE_SUCCESS" msg="RECORD DELETED"/>
+    <ScreenMessage name="INQUIRE_SUCCESS" msg="RECORD INQUIRY"/>
+    <ScreenMessage name="ITEM_NOT_RELEASED" msg="ITEM NOT RELEASED"/>
+    <ScreenMessage name="NO_DISC_RECORDS" msg="NO DISCOUNT RECORDS"/>
+    <ScreenMessage name="RELEASE_SUCCESS" msg="ITEM RELEASED"/>
+  </screen>
+  <screen name="FXF4M">
+    <ScreenField name="actionInd" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="authority" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="baseRatePlus" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cancelDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="carrier" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cI" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="cO" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="country" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custNbr" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="custType" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="dsnm1d04m" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateDay" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateMonth" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="effectiveDateYear" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="headerUpdateDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="headerUpdateUserid" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="holdAtMcf" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="inter" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="item" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="itemSub" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="logilityInc" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="nextScreen" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="number" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="payRule" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="pI" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="pO" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenMessage" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenName" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="screenTitle" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="theDate" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="tp" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="typeHaul" x="0" y="0" length="8" matchText=""/>
+    <ScreenField name="userCode" x="0" y="0" length="8" matchText=""/>
+    <ScreenMessage name="ACCOUNT_NOT_FOUND" msg="ACCOUNT NOT FOUND"/>
+    <ScreenMessage name="ADD_SUCCESS" msg="RECORD ADDED"/>
+    <ScreenMessage name="CHANGE_SUCCESS" msg="RECORD CHANGED"/>
+    <ScreenMessage name="DELETE_SUCCESS" msg="RECORD DELETED"/>
+    <ScreenMessage name="INQUIRE_SUCCESS" msg="RECORD INQUIRY"/>
+    <ScreenMessage name="ITEM_NOT_RELEASED" msg="ITEM NOT RELEASED"/>
+    <ScreenMessage name="NO_DISC_RECORDS" msg="NO DISCOUNT RECORDS"/>
+    <ScreenMessage name="RELEASE_SUCCESS" msg="ITEM RELEASED"/>
+  </screen>
+</layout>
+
+
