@@ -40,4 +40,9 @@ gen_connection_guide_docx.py
 FXF3A_Tool_*_dist.zip
 make_package.py
 
+# Python cache / local scratch
+__pycache__/
+*.pyc
+.tmp_h.py
+
 .fake

@@ -1,4 +1,4 @@
-﻿Option Strict On
+Option Strict On
 Option Explicit On
 
 Imports FedEx.PABST.SS.SSLib
@@ -6,26 +6,26 @@ Imports FedEx.PABST.SS.Screens
 
 ' ================================================================
 '  FXF3J, FXF3K, FXF3M, FXF3N, FXF4M BatchRow models
-'  FXF3J  — Copy Account (inherits BatchRowBase, no Part)
-'  FXF3K  — State Matrix (inherits BatchRowBase, no Part)
-'  FXF3M  — H-Unit Allowance (inherits BatchRowWithPart)
-'  FXF3N  — Unit Rates (inherits BatchRowWithPart)
-'  FXF4M  — Pay Rule / Earned Discount (inherits BatchRowWithPart)
+'  FXF3J  � Copy Account (inherits BatchRowBase, no Part)
+'  FXF3K  � State Matrix (inherits BatchRowBase, no Part)
+'  FXF3M  � H-Unit Allowance (inherits BatchRowWithPart)
+'  FXF3N  � Unit Rates (inherits BatchRowWithPart)
+'  FXF4M  � Pay Rule / Earned Discount (inherits BatchRowWithPart)
 ' ================================================================
 
 Namespace Models
 
-    ' ──────────────────────────────────────────────────────────────
-    '  FXF3J — Copy Account
-    '  Inherits BatchRowBase (no Part — copy has no Part concept).
+    ' --------------------------------------------------------------
+    '  FXF3J � Copy Account
+    '  Inherits BatchRowBase (no Part � copy has no Part concept).
     '  FromType/ToType default "CC", ToCarrier defaults "ARFW".
     '  The ViewModel handles the COPY API call directly; ToItemClass
     '  returns Nothing.
-    ' ──────────────────────────────────────────────────────────────
+    ' --------------------------------------------------------------
     Public Class FXF3J_BatchRow
         Inherits BatchRowBase
 
-        ' ── From side ────────────────────────────────────────────────
+        ' -- From side ------------------------------------------------
         Private _fromType As String = "CC" : Public Property FromType As String
             Get
                 Return _fromType
@@ -75,7 +75,7 @@ Namespace Models
             End Set
         End Property
 
-        ' ── To side ──────────────────────────────────────────────────
+        ' -- To side --------------------------------------------------
         Private _toType As String = "CC"   : Public Property ToType As String
             Get
                 Return _toType
@@ -125,7 +125,7 @@ Namespace Models
             End Set
         End Property
 
-        ' ── Copy options ──────────────────────────────────────────────
+        ' -- Copy options ----------------------------------------------
         Private _toCarrier As String = "ARFW" : Public Property ToCarrier As String
             Get
                 Return _toCarrier
@@ -151,22 +151,32 @@ Namespace Models
             End Set
         End Property
 
-        ' ── ToItemClass — not applicable for COPY ────────────────────
+        ' -- ToItemClass � not applicable for COPY --------------------
         ' Copy uses a different API handled entirely in ViewModel.
         Public Function ToItemClass() As Object
             Return Nothing
         End Function
 
-        ' ── Private helpers ──────────────────────────────────────────
+        ' -- Private helpers ------------------------------------------
         Private Shared Function ParseDate(s As String) As Date
             If String.IsNullOrWhiteSpace(s) Then Return ScreenScraping.NULL_DATE
             Dim d As Date
             Return If(Date.TryParse(s, d), d, ScreenScraping.NULL_DATE)
         End Function
 
-        Private Shared Function ParseEnum(Of T As Structure)(s As String, defaultVal As String) As T
+                Private Shared Function ParseEnum(Of T As Structure)(s As String, defaultVal As String) As T
             Dim target = If(String.IsNullOrWhiteSpace(s), defaultVal, s)
-            Return DirectCast([Enum].Parse(GetType(T), target, True), T)
+            Dim value As T
+
+            If [Enum].TryParse(Of T)(target, True, value) Then Return value
+            If [Enum].TryParse(Of T)(defaultVal, True, value) Then Return value
+
+            Dim values = [Enum].GetValues(GetType(T))
+            If values IsNot Nothing AndAlso values.Length > 0 Then
+                Return DirectCast(values.GetValue(0), T)
+            End If
+
+            Return Nothing
         End Function
 
         Private Shared Function GetEnumName(Of T As Structure)(value As T) As String
@@ -175,14 +185,14 @@ Namespace Models
 
     End Class
 
-    ' ──────────────────────────────────────────────────────────────
-    '  FXF3K — State Matrix
+    ' --------------------------------------------------------------
+    '  FXF3K � State Matrix
     '  Inherits BatchRowBase (no Part).
     '  Actions: GET, DELETE, CANCEL.
-    '  No ADD/CHANGE — a 101x101 matrix cannot be batch-entered.
-    '  No ToItemClass or FromItemClass — matrix data is complex and
+    '  No ADD/CHANGE � a 101x101 matrix cannot be batch-entered.
+    '  No ToItemClass or FromItemClass � matrix data is complex and
     '  handled entirely in ViewModel.
-    ' ──────────────────────────────────────────────────────────────
+    ' --------------------------------------------------------------
     Public Class FXF3K_BatchRow
         Inherits BatchRowBase
 
@@ -210,8 +220,56 @@ Namespace Models
                 SetField(_matrixCancelDate, v)
             End Set
         End Property
+        Private _fsAuthority As String = ""      : Public Property FsAuthority As String
+            Get
+                Return _fsAuthority
+            End Get
+            Set(v As String)
+                SetField(_fsAuthority, v)
+            End Set
+        End Property
+        Private _fsNumber As String = ""         : Public Property FsNumber As String
+            Get
+                Return _fsNumber
+            End Get
+            Set(v As String)
+                SetField(_fsNumber, v)
+            End Set
+        End Property
+        Private _fsItem As String = ""           : Public Property FsItem As String
+            Get
+                Return _fsItem
+            End Get
+            Set(v As String)
+                SetField(_fsItem, v)
+            End Set
+        End Property
+        Private _lastMaintDate As String = ""    : Public Property LastMaintDate As String
+            Get
+                Return _lastMaintDate
+            End Get
+            Set(v As String)
+                SetField(_lastMaintDate, v)
+            End Set
+        End Property
+        Private _operatorId As String = ""       : Public Property OperatorId As String
+            Get
+                Return _operatorId
+            End Get
+            Set(v As String)
+                SetField(_operatorId, v)
+            End Set
+        End Property
+        Private _revision As String = ""         : Public Property Revision As String
+            Get
+                Return _revision
+            End Get
+            Set(v As String)
+                SetField(_revision, v)
+            End Set
+        End Property
 
-        ' ── Private helpers ──────────────────────────────────────────
+        ' -- Private helpers ------------------------------------------
         Private Shared Function ParseDate(s As String) As Date
             If String.IsNullOrWhiteSpace(s) Then Return ScreenScraping.NULL_DATE
             Dim d As Date
@@ -220,13 +278,13 @@ Namespace Models
 
     End Class
 
-    ' ──────────────────────────────────────────────────────────────
-    '  FXF3M — H-Unit Allowance
+    ' --------------------------------------------------------------
+    '  FXF3M � H-Unit Allowance
     '  Unique: hUnit (CalcRule, allowance sub-object, EWR sub-object)
     '          fsAuthority/fsNumber/fsItem, rateManual, huType,
     '          condition, prepaidOrCollect, effectiveDate, cancelDate,
     '          comments, lastMaintenanceDate, operatorId, revision
-    ' ──────────────────────────────────────────────────────────────
+    ' --------------------------------------------------------------
     Public Class FXF3M_BatchRow
         Inherits BatchRowWithPart
 
@@ -415,7 +473,7 @@ Namespace Models
             End Set
         End Property
 
-        ' ── Build FXF3M.itemClass from this row ──────────────────────
+        ' -- Build FXF3M.itemClass from this row ----------------------
         Public Function ToItemClass() As FXF3M.itemClass
             Dim it As New FXF3M.itemClass
             it.itemHeader.auhority = Authority
@@ -452,10 +510,13 @@ Namespace Models
             hu.EWR = ewr
 
             it.hUnit = hu
+            it.lastMaintenanceDate = ParseDate(LastMaintDate)
+            it.operatorId = OperatorId
+            it.revision = Revision
             Return it
         End Function
 
-        ' ── Populate this row from a FXF3M.itemClass result ──────────
+        ' -- Populate this row from a FXF3M.itemClass result ----------
         Public Sub FromItemClass(it As FXF3M.itemClass)
             Authority = it.itemHeader.auhority
             Number    = it.itemHeader.number
@@ -495,7 +556,7 @@ Namespace Models
             Status        = OperationStatus.Success
         End Sub
 
-        ' ── Private helpers ──────────────────────────────────────────
+        ' -- Private helpers ------------------------------------------
         Private Shared Function ParseDate(s As String) As Date
             If String.IsNullOrWhiteSpace(s) Then Return ScreenScraping.NULL_DATE
             Dim d As Date
@@ -507,9 +568,19 @@ Namespace Models
             Return d.ToString("MM/dd/yy")
         End Function
 
-        Private Shared Function ParseEnum(Of T As Structure)(s As String, defaultVal As String) As T
+                Private Shared Function ParseEnum(Of T As Structure)(s As String, defaultVal As String) As T
             Dim target = If(String.IsNullOrWhiteSpace(s), defaultVal, s)
-            Return DirectCast([Enum].Parse(GetType(T), target, True), T)
+            Dim value As T
+
+            If [Enum].TryParse(Of T)(target, True, value) Then Return value
+            If [Enum].TryParse(Of T)(defaultVal, True, value) Then Return value
+
+            Dim values = [Enum].GetValues(GetType(T))
+            If values IsNot Nothing AndAlso values.Length > 0 Then
+                Return DirectCast(values.GetValue(0), T)
+            End If
+
+            Return Nothing
         End Function
 
         Private Shared Function GetEnumName(Of T As Structure)(value As T) As String
@@ -518,16 +589,16 @@ Namespace Models
 
     End Class
 
-    ' ──────────────────────────────────────────────────────────────
-    '  FXF3N — Unit Rates
+    ' --------------------------------------------------------------
+    '  FXF3N � Unit Rates
     '  Unique: condition, prepaidOrCollect, alternation, classRates,
     '          clsTrf*, rateEffDate, huType (fxfHUType enum),
     '          mileage auth/num/range, rateTable rows (up to 10).
     '  rateTableRow.rateType is ScreenScraping.fxfRateType (NOT
-    '  fxfRateTypeEnum — this is a different type from SSLib).
+    '  fxfRateTypeEnum � this is a different type from SSLib).
     '  rateTable columns per row: MinHunits, MaxHunits,
     '          AvgMinHunit, AvgMaxHunit (integers), rateType, amount.
-    ' ──────────────────────────────────────────────────────────────
+    ' --------------------------------------------------------------
     Public Class FXF3N_BatchRow
         Inherits BatchRowWithPart
 
@@ -1178,7 +1249,7 @@ Namespace Models
             End Set
         End Property
 
-        ' ── Build FXF3N.itemClass from this row ──────────────────────
+        ' -- Build FXF3N.itemClass from this row ----------------------
         Public Function ToItemClass() As FXF3N.itemClass
             Dim it As New FXF3N.itemClass
             it.itemHeader.auhority = Authority
@@ -1242,10 +1313,13 @@ Namespace Models
             addRate(RT9MinH,  RT9MaxH,  RT9AvgMin,  RT9AvgMax,  RT9RateType,  RT9Amt)
             addRate(RT10MinH, RT10MaxH, RT10AvgMin, RT10AvgMax, RT10RateType, RT10Amt)
             it.rateTable = rt
+            it.lastMaintenanceDate = ParseDate(LastMaintDate)
+            it.operatorId = OperatorId
+            it.revision = Revision
             Return it
         End Function
 
-        ' ── Populate this row from a FXF3N.itemClass result ──────────
+        ' -- Populate this row from a FXF3N.itemClass result ----------
         Public Sub FromItemClass(it As FXF3N.itemClass)
             Authority = it.itemHeader.auhority
             Number    = it.itemHeader.number
@@ -1311,7 +1385,7 @@ Namespace Models
             Status        = OperationStatus.Success
         End Sub
 
-        ' ── Private helpers ──────────────────────────────────────────
+        ' -- Private helpers ------------------------------------------
         Private Shared Function ParseDate(s As String) As Date
             If String.IsNullOrWhiteSpace(s) Then Return ScreenScraping.NULL_DATE
             Dim d As Date
@@ -1323,9 +1397,19 @@ Namespace Models
             Return d.ToString("MM/dd/yy")
         End Function
 
-        Private Shared Function ParseEnum(Of T As Structure)(s As String, defaultVal As String) As T
+                Private Shared Function ParseEnum(Of T As Structure)(s As String, defaultVal As String) As T
             Dim target = If(String.IsNullOrWhiteSpace(s), defaultVal, s)
-            Return DirectCast([Enum].Parse(GetType(T), target, True), T)
+            Dim value As T
+
+            If [Enum].TryParse(Of T)(target, True, value) Then Return value
+            If [Enum].TryParse(Of T)(defaultVal, True, value) Then Return value
+
+            Dim values = [Enum].GetValues(GetType(T))
+            If values IsNot Nothing AndAlso values.Length > 0 Then
+                Return DirectCast(values.GetValue(0), T)
+            End If
+
+            Return Nothing
         End Function
 
         Private Shared Function GetEnumName(Of T As Structure)(value As T) As String
@@ -1334,16 +1418,16 @@ Namespace Models
 
     End Class
 
-    ' ──────────────────────────────────────────────────────────────
-    '  FXF4M — Pay Rule / Earned Discount
-    '  Inherits BatchRowWithPart — Part maps to payRule in API calls.
+    ' --------------------------------------------------------------
+    '  FXF4M � Pay Rule / Earned Discount
+    '  Inherits BatchRowWithPart � Part maps to payRule in API calls.
     '  FXF4M does NOT have addItem or changeItem; it has:
     '    getItem, getItems, cancelItem, setEdTable, deleteItem.
     '  Therefore ToItemClass is not meaningful (returns Nothing).
     '  FromItemClass populates from a FXF4M.itemClass result.
     '  NOTE: FXF4M.itemHeaderClass has payRule (not part) and uses
     '        the auhority spelling typo consistent with other screens.
-    ' ──────────────────────────────────────────────────────────────
+    ' --------------------------------------------------------------
     Public Class FXF4M_BatchRow
         Inherits BatchRowWithPart
 
@@ -1478,6 +1562,56 @@ Namespace Models
             End Set
         End Property
 
+        ' Detail row values written via setEdTable.
+        Private _opcoTtl As String = ""     : Public Property OpcoTtl As String
+            Get
+                Return _opcoTtl
+            End Get
+            Set(v As String)
+                SetField(_opcoTtl, v)
+            End Set
+        End Property
+        Private _fxfTtl As String = ""      : Public Property FxfTtl As String
+            Get
+                Return _fxfTtl
+            End Get
+            Set(v As String)
+                SetField(_fxfTtl, v)
+            End Set
+        End Property
+        Private _edPct As String = ""       : Public Property EdPct As String
+            Get
+                Return _edPct
+            End Get
+            Set(v As String)
+                SetField(_edPct, v)
+            End Set
+        End Property
+        Private _dt As String = ""          : Public Property Dt As String
+            Get
+                Return _dt
+            End Get
+            Set(v As String)
+                SetField(_dt, v)
+            End Set
+        End Property
+        Private _updDate As String = ""     : Public Property UpdDate As String
+            Get
+                Return _updDate
+            End Get
+            Set(v As String)
+                SetField(_updDate, v)
+            End Set
+        End Property
+        Private _updUserId As String = ""   : Public Property UpdUserId As String
+            Get
+                Return _updUserId
+            End Get
+            Set(v As String)
+                SetField(_updUserId, v)
+            End Set
+        End Property
+
         ' Audit fields
         Private _lastMaintDate As String = "" : Public Property LastMaintDate As String
             Get
@@ -1504,14 +1638,45 @@ Namespace Models
             End Set
         End Property
 
-        ' ── ToItemClass — FXF4M has no addItem/changeItem ────────────
+        ' -- ToItemClass � FXF4M has no addItem/changeItem ------------
         ' No write operations are supported via itemClass; handled in
         ' ViewModel via setEdTable / cancelItem / deleteItem APIs.
         Public Function ToItemClass() As Object
             Return Nothing
         End Function
 
-        ' ── Populate this row from a FXF4M.itemClass result ──────────
+        Public Function HasEdTablePayload() As Boolean
+            Return Not (String.IsNullOrWhiteSpace(OpcoTtl) AndAlso
+                        String.IsNullOrWhiteSpace(FxfTtl) AndAlso
+                        String.IsNullOrWhiteSpace(EdPct) AndAlso
+                        String.IsNullOrWhiteSpace(Dt) AndAlso
+                        String.IsNullOrWhiteSpace(EffDate) AndAlso
+                        String.IsNullOrWhiteSpace(ExpDate) AndAlso
+                        String.IsNullOrWhiteSpace(UpdDate) AndAlso
+                        String.IsNullOrWhiteSpace(UpdUserId))
+        End Function
+
+        Public Function ToEdTableCollection(rowAction As String) As FXF4M.edTableCollection
+            Dim table As New FXF4M.edTableCollection()
+            table.Add(ToEdTableRow(rowAction))
+            Return table
+        End Function
+
+        Private Function ToEdTableRow(rowAction As String) As FXF4M.edTableRow
+            Dim row As New FXF4M.edTableRow()
+            row.actionInd = ParseAction(rowAction)
+            row.opcoTtl = ParseSingle(OpcoTtl)
+            row.fxfTtl = ParseSingle(FxfTtl)
+            row.edPct = ParseSingle(EdPct)
+            row.dt = If(String.IsNullOrWhiteSpace(Dt), "", Dt.Trim())
+            row.effDate = ParseDate(EffDate)
+            row.expDate = ParseDate(ExpDate)
+            row.updDate = ParseDate(UpdDate)
+            row.updUserId = UpdUserId
+            Return row
+        End Function
+
+        ' -- Populate this row from a FXF4M.itemClass result ----------
         Public Sub FromItemClass(it As FXF4M.itemClass)
             ' FXF4M.itemHeaderClass uses payRule (not part) as the key field
             Authority = it.itemHeader.auhority
@@ -1540,13 +1705,25 @@ Namespace Models
             HdrUpdDate   = FormatDate(it.hdrUpdDate)
             HdrUpdUserID = it.hdrUpdUserID
 
+            If it.itemHeader IsNot Nothing AndAlso it.itemHeader.edTable IsNot Nothing AndAlso it.itemHeader.edTable.Count > 0 Then
+                Dim detail = it.itemHeader.edTable(0)
+                OpcoTtl = detail.opcoTtl.ToString()
+                FxfTtl = detail.fxfTtl.ToString()
+                EdPct = detail.edPct.ToString()
+                Dt = detail.dt
+                If detail.effDate <> ScreenScraping.NULL_DATE Then EffDate = FormatDate(detail.effDate)
+                If detail.expDate <> ScreenScraping.NULL_DATE Then ExpDate = FormatDate(detail.expDate)
+                UpdDate = FormatDate(detail.updDate)
+                UpdUserId = detail.updUserId
+            End If
+
             LastMaintDate = FormatDate(it.hdrUpdDate)
             OperatorId    = it.hdrUpdUserID
             Revision      = ""
             Status        = OperationStatus.Success
         End Sub
 
-        ' ── Private helpers ──────────────────────────────────────────
+        ' -- Private helpers ------------------------------------------
         Private Shared Function ParseDate(s As String) As Date
             If String.IsNullOrWhiteSpace(s) Then Return ScreenScraping.NULL_DATE
             Dim d As Date
@@ -1558,9 +1735,38 @@ Namespace Models
             Return d.ToString("MM/dd/yy")
         End Function
 
-        Private Shared Function ParseEnum(Of T As Structure)(s As String, defaultVal As String) As T
+                Private Shared Function ParseEnum(Of T As Structure)(s As String, defaultVal As String) As T
             Dim target = If(String.IsNullOrWhiteSpace(s), defaultVal, s)
-            Return DirectCast([Enum].Parse(GetType(T), target, True), T)
+            Dim value As T
+
+            If [Enum].TryParse(Of T)(target, True, value) Then Return value
+            If [Enum].TryParse(Of T)(defaultVal, True, value) Then Return value
+
+            Dim values = [Enum].GetValues(GetType(T))
+            If values IsNot Nothing AndAlso values.Length > 0 Then
+                Return DirectCast(values.GetValue(0), T)
+            End If
+
+            Return Nothing
+        End Function
+
+        Private Shared Function ParseAction(action As String) As ScreenScraping.fxfActionIndEnum
+            Select Case action.Trim().ToUpperInvariant()
+                Case "ADD"
+                    Return ScreenScraping.fxfActionIndEnum.A
+                Case "CHANGE"
+                    Return ScreenScraping.fxfActionIndEnum.C
+                Case "DELETE"
+                    Return ScreenScraping.fxfActionIndEnum.D
+                Case Else
+                    Return ScreenScraping.fxfActionIndEnum.NA
+            End Select
+        End Function
+
+        Private Shared Function ParseSingle(s As String) As Single
+            Dim value As Single
+            If Single.TryParse(s, value) Then Return value
+            Return 0.0F
         End Function
 
         Private Shared Function GetEnumName(Of T As Structure)(value As T) As String
@@ -1570,3 +1776,4 @@ Namespace Models
     End Class
 
 End Namespace
+

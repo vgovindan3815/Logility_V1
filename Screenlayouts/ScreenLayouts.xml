@@ -646,34 +646,34 @@
     <field name="carrier" x="3" y="29" length="4" matchText="" />
     <field name="userCode" x="4" y="13" length="2" matchText="" />
     <field name="actionInd" x="4" y="48" length="1" matchText="" />
-    <field name="theType" x="6" y="5" length="2" matchText="" />
-    <field name="name" x="6" y="14" length="35" matchText="" />
-    <field name="nbr" x="6" y="61" length="23" matchText="" />
+    <field name="custType" x="6" y="5" length="2" matchText="" />
+    <field name="custName" x="6" y="14" length="35" matchText="" />
+    <field name="custNbr" x="6" y="61" length="23" matchText="" />
     <field name="authority" x="7" y="13" length="5" matchText="" />
-    <field name="theNumber" x="7" y="27" length="6" matchText="" />
-    <field name="theItem" x="7" y="40" length="15" matchText="" />
+    <field name="number" x="7" y="27" length="6" matchText="" />
+    <field name="item" x="7" y="40" length="15" matchText="" />
     <field name="itemSub" x="7" y="56" length="5" matchText="" />
-    <field name="thePart" x="7" y="71" length="4" matchText="" />
+    <field name="part" x="7" y="71" length="4" matchText="" />
     <field name="prepaidInbound" x="8" y="7" length="1" matchText="" />
     <field name="prepaidOutbound" x="8" y="14" length="1" matchText="" />
     <field name="collectInbound" x="8" y="21" length="1" matchText="" />
     <field name="collectOutbound" x="8" y="28" length="1" matchText="" />
 
-    <field name="clZp" x="16" y="9" length="1" matchText="" />
+    <field name="classZip" x="16" y="9" length="1" matchText="" />
     <field name="rateEffMonth" x="16" y="21" length="2" matchText="" />
     <field name="rateEffDay" x="16" y="26" length="2" matchText="" />
     <field name="rateEffYear" x="16" y="31" length="2" matchText="" />
-    <field name="auth" x="16" y="40" length="5" matchText="" />
-    <field name="no" x="16" y="50" length="6" matchText="" />
-    <field name="sect" x="16" y="63" length="16" matchText="" />
-    <field name="exceptionClass" x="17" y="19" length="4" matchText="" />
-    <field name="excClassMaxWt" x="17" y="45" length="6" matchText="" />
+    <field name="classZipAuthority" x="16" y="40" length="5" matchText="" />
+    <field name="classZipNumber" x="16" y="50" length="6" matchText="" />
+    <field name="classZipSection" x="16" y="63" length="16" matchText="" />
+    <field name="excClass" x="17" y="19" length="4" matchText="" />
+    <field name="excClassMaxWgt" x="17" y="45" length="6" matchText="" />
     <field name="genGeoAlt" x="17" y="71" length="1" matchText="" />
     <field name="discountMinChgDiscMaxWeight" x="18" y="2" length="36" matchText="DISCOUNT   MIN CHG DISC  MAX WEIGHT" />
     <field name="flrMinEffectiveDateCancelDate" x="18" y="39" length="44" matchText="FLR MIN  EFFECTIVE DATE   CANCEL DATE" />
 
     <field name="lastMaintenanceDate" x="22" y="7" length="8" matchText="" />
-    <field name="theOperator" x="22" y="29" length="10" matchText="" />
+    <field name="operatorId" x="22" y="29" length="10" matchText="" />
     <field name="revision" x="22" y="50" length="3" matchText="" />
     <field name="revision" x="22" y="75" length="4" matchText="" />
     <field name="screenMessage" x="24" y="2" length="63" matchText="" />
@@ -1103,7 +1103,7 @@
     <field name="firstRowName" x="8" y="3" length="2" matchText="" />
 
     <field name="lastMaintenanceDate" x="22" y="7" length="8" matchText="" />
-    <field name="operatorId" x="22" y="29" length="10" matchText="" />
+    <field name="theOperator" x="22" y="29" length="10" matchText="" />
     <field name="revision" x="22" y="50" length="3" matchText="" />
     <field name="source" x="22" y="75" length="5" matchText="" />
     <field name="screenMessage" x="24" y="2" length="64" matchText="" />
@@ -1177,15 +1177,15 @@
     <field name="carrier" x="3" y="29" length="4" matchText="" />
     <field name="userCode" x="4" y="13" length="2" matchText="" />
     <field name="actionInd" x="4" y="48" length="1" matchText="" />
-    <field name="theType" x="6" y="5" length="2" matchText="" />
-    <field name="name" x="6" y="13" length="43" matchText="" />
-    <field name="nbr" x="6" y="60" length="103" matchText="" />
+    <field name="custType" x="6" y="5" length="2" matchText="" />
+    <field name="custName" x="6" y="13" length="43" matchText="" />
+    <field name="custNbr" x="6" y="60" length="103" matchText="" />
     <field name="authority" x="8" y="13" length="5" matchText="" />
-    <field name="theNumber" x="8" y="27" length="6" matchText="" />
-    <field name="theItem" x="8" y="40" length="15" matchText="" />
-    <field name="theItemSub" x="8" y="56" length="5" matchText="" />
-    <field name="thePart" x="8" y="69" length="4" matchText="" />
-    <field name="rateManualYN" x="10" y="19" length="1" matchText="" />
+    <field name="number" x="8" y="27" length="6" matchText="" />
+    <field name="item" x="8" y="40" length="15" matchText="" />
+    <field name="itemSub" x="8" y="56" length="5" matchText="" />
+    <field name="part" x="8" y="69" length="4" matchText="" />
+    <field name="rateManual" x="10" y="19" length="1" matchText="" />
     <field name="hUnitType" x="10" y="34" length="4" matchText="" />
     <field name="condition" x="10" y="50" length="4" matchText="" />
     <field name="prepaidOrCollect" x="11" y="22" length="1" matchText="" />
@@ -1200,14 +1200,14 @@
     <field name="maximumNumberOfHUnits" x="16" y="35" length="6" matchText="" />
     <field name="maximumTotalHUnitWeight" x="17" y="35" length="6" matchText="" />
     <field name="maximumPerHUnitWeight" x="18" y="35" length="6" matchText="" />
-    <field name="theClass" x="20" y="18" length="1" matchText="" />
-    <field name="classNo" x="20" y="30" length="4" matchText="" />
-    <field name="lowRate" x="21" y="21" length="1" matchText="" />
-    <field name="highRate" x="21" y="40" length="1" matchText="" />
-    <field name="highestVolByWgt" x="21" y="69" length="1" matchText="" />
+    <field name="huClsYN" x="20" y="18" length="1" matchText="" />
+    <field name="huClsNumber" x="20" y="30" length="4" matchText="" />
+    <field name="huLowRate" x="21" y="21" length="1" matchText="" />
+    <field name="huHighRate" x="21" y="40" length="1" matchText="" />
+    <field name="huHighestVolByWgt" x="21" y="69" length="1" matchText="" />
 
     <field name="lastMaintenanceDate" x="22" y="7" length="8" matchText="" />
-    <field name="theOperator" x="22" y="29" length="10" matchText="" />
+    <field name="operatorId" x="22" y="29" length="10" matchText="" />
     <field name="revision" x="22" y="50" length="3" matchText="" />
     <field name="source" x="22" y="75" length="5" matchText="" />
     <field name="screenMessage" x="24" y="2" length="64" matchText="" />

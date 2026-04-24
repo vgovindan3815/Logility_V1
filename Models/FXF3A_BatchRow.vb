@@ -1,4 +1,4 @@
-﻿Option Strict On
+Option Strict On
 Option Explicit On
 
 Imports FedEx.PABST.SS.SSLib
@@ -14,7 +14,7 @@ Namespace Models
     Public Class FXF3A_BatchRow
         Inherits BatchRowBase
 
-        ' ── Discount row 1 ───────────────────────────────────────────
+        ' -- Discount row 1 -------------------------------------------
         Private _disc1 As String = "" : Public Property Disc1 As String
             Get
                 Return _disc1
@@ -64,7 +64,7 @@ Namespace Models
             End Set
         End Property
 
-        ' ── Discount row 2 ───────────────────────────────────────────
+        ' -- Discount row 2 -------------------------------------------
         Private _disc2 As String = "" : Public Property Disc2 As String
             Get
                 Return _disc2
@@ -114,7 +114,7 @@ Namespace Models
             End Set
         End Property
 
-        ' ── Discount row 3 ───────────────────────────────────────────
+        ' -- Discount row 3 -------------------------------------------
         Private _disc3 As String = "" : Public Property Disc3 As String
             Get
                 Return _disc3
@@ -164,7 +164,7 @@ Namespace Models
             End Set
         End Property
 
-        ' ── Item attributes ──────────────────────────────────────────
+        ' -- Item attributes ------------------------------------------
         Private _currency As String = "USD" : Public Property Currency As String
             Get
                 Return _currency
@@ -478,7 +478,7 @@ Namespace Models
             End Set
         End Property
 
-        ' ── NMFC class flags ─────────────────────────────────────────
+        ' -- NMFC class flags -----------------------------------------
         Private _n50  As String = "N" : Public Property N50  As String
             Get
                 Return _n50 
@@ -640,7 +640,7 @@ Namespace Models
             End Set
         End Property
 
-        ' ── Read-only from screen (populated by GET) ─────────────────
+        ' -- Read-only from screen (populated by GET) -----------------
         Private _lastMaintDate As String = "" : Public Property LastMaintDate As String
             Get
                 Return _lastMaintDate
@@ -666,10 +666,10 @@ Namespace Models
             End Set
         End Property
 
-        ' ── Build FXF3A.itemClass from this row ──────────────────────
+        ' -- Build FXF3A.itemClass from this row ----------------------
         Public Function ToItemClass() As FXF3A.itemClass
             Dim it As New FXF3A.itemClass
-            it.itemHeader.auhority  = Authority   ' note: typo in source — must match
+            it.itemHeader.auhority  = Authority   ' note: typo in source � must match
             it.itemHeader.number    = Number
             it.itemHeader.item      = Item
             it.itemHeader.discTable = BuildDiscTable()
@@ -724,7 +724,7 @@ Namespace Models
             Return it
         End Function
 
-        ' ── Populate this row from a FXF3A.itemClass result ──────────
+        ' -- Populate this row from a FXF3A.itemClass result ----------
         Public Sub FromItemClass(it As FXF3A.itemClass)
             Authority    = it.itemHeader.auhority
             Number       = it.itemHeader.number
@@ -765,7 +765,7 @@ Namespace Models
             Status = OperationStatus.Success
         End Sub
 
-        ' ── Private helpers ──────────────────────────────────────────
+        ' -- Private helpers ------------------------------------------
         Private Function BuildDiscTable() As FXF3A.DiscCollection
             Dim dtc As New FXF3A.DiscCollection
             For Each tpl As Tuple(Of String, String, String, String, String, String) In New Tuple(Of String, String, String, String, String, String)() {
@@ -809,12 +809,22 @@ Namespace Models
             Return d.ToString("MM/dd/yy")
         End Function
 
-        Private Shared Function ParseEnum(Of T As Structure)(s As String,
-                defaultVal As String) As T
+                Private Shared Function ParseEnum(Of T As Structure)(s As String, defaultVal As String) As T
             Dim target = If(String.IsNullOrWhiteSpace(s), defaultVal, s)
-            Return DirectCast([Enum].Parse(GetType(T), target, True), T)
+            Dim value As T
+
+            If [Enum].TryParse(Of T)(target, True, value) Then Return value
+            If [Enum].TryParse(Of T)(defaultVal, True, value) Then Return value
+
+            Dim values = [Enum].GetValues(GetType(T))
+            If values IsNot Nothing AndAlso values.Length > 0 Then
+                Return DirectCast(values.GetValue(0), T)
+            End If
+
+            Return Nothing
         End Function
 
     End Class
 
 End Namespace
+

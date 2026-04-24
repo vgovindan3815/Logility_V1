@@ -7,6 +7,7 @@ Imports System.Text
 Imports System.Threading.Tasks
 Imports System.Windows
 Imports FedEx.PABST.SS.Exceptions
+Imports FedEx.PABST.SS.Screens
 Imports FXF3A_Tool.Core
 Imports FXF3A_Tool.Models
 
@@ -235,11 +236,21 @@ Namespace ViewModels
             Try
                 Dim carrier  = ParseCarrier(row.Carrier)
                 Dim custType = ParseCustType(row.CustType)
+                Dim action = row.Action.ToUpperInvariant()
+                Dim fxf3b = EnsureFxf3BReady(row, action)
 
-                Select Case row.Action.ToUpper()
+                If action = "ADD" OrElse action = "GET" OrElse action = "CHANGE" OrElse action = "DELETE" Then
+                    If String.IsNullOrWhiteSpace(row.Account) Then Throw New ArgumentException("ACCOUNT is required for FXF3B.")
+                    If String.IsNullOrWhiteSpace(row.Authority) Then Throw New ArgumentException("AUTHORITY is required for FXF3B.")
+                    If String.IsNullOrWhiteSpace(row.Number) Then Throw New ArgumentException("NUMBER is required for FXF3B.")
+                    If String.IsNullOrWhiteSpace(row.Item) Then Throw New ArgumentException("ITEM is required for FXF3B.")
+                    If String.IsNullOrWhiteSpace(row.Part) Then Throw New ArgumentException("PART is required for FXF3B.")
+                End If
+
+                Select Case action
 
                     Case "GET"
-                        Dim it = _session.FXF3B.getItem(
+                        Dim it = fxf3b.getItem(
                             carrier, custType, row.Account,
                             row.Authority, row.Number, row.Item, row.Part)
                         Dim resultRow As New FXF3B_BatchRow
@@ -252,7 +263,7 @@ Namespace ViewModels
                         End Sub)
 
                     Case "ADD"
-                        _session.FXF3B.addItem(
+                        fxf3b.addItem(
                             carrier, custType, row.Account,
                             row.ToItemClass(), (row.Release = "Y"))
                         Application.Current.Dispatcher.InvokeAsync(Sub()
@@ -260,7 +271,7 @@ Namespace ViewModels
                         End Sub)
 
                     Case "CHANGE"
-                        _session.FXF3B.changeItem(
+                        fxf3b.changeItem(
                             carrier, custType, row.Account,
                             row.Authority, row.Number, row.Item, row.Part,
                             row.ToItemClass())
@@ -269,11 +280,17 @@ Namespace ViewModels
                         End Sub)
 
                     Case "DELETE"
-                        _session.FXF3B.deleteItem(
+                        fxf3b.deleteItem(
                             carrier, custType, row.Account,
                             row.Authority, row.Number, row.Item, row.Part)
                         Application.Current.Dispatcher.InvokeAsync(Sub()
                             row.Status = OperationStatus.Success
+                        End Sub)
+
+                    Case "CANCEL"
+                        Application.Current.Dispatcher.InvokeAsync(Sub()
+                            row.Status = OperationStatus.Skipped
+                            row.StatusMessage = "CANCEL is not supported for FXF3B by the screen scraper API."
                         End Sub)
 
                     Case Else
@@ -288,34 +305,79 @@ Namespace ViewModels
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Account not found: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As NoDiscountRecordsException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Warning
                     row.StatusMessage = "No discount records"
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 ' Warning — not rethrown
             Catch ex As NumericValueException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Invalid numeric value: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As GenericScreenScraperException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
-                    row.StatusMessage = ex.Message &
-                        If(Not String.IsNullOrWhiteSpace(ex.ScreenDump), " [screen dump available]", "")
+                    Dim details = BuildErrorDetails(ex)
+                    If details.IndexOf("952", StringComparison.OrdinalIgnoreCase) >= 0 OrElse
+                       details.IndexOf("account validation", StringComparison.OrdinalIgnoreCase) >= 0 Then
+                        row.StatusMessage = "Mainframe rejected account/item key on FXF3B (error 952). Verify CARRIER, CUSTTYPE, ACCOUNT, AUTHORITY, NUMBER, ITEM, PART are valid existing values. " & details
+                    Else
+                        row.StatusMessage = details
+                    End If
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As Exception
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
-                    row.StatusMessage = ex.Message
+                    row.StatusMessage = BuildErrorDetails(ex)
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             End Try
         End Sub
+
+        Private Function EnsureFxf3BReady(row As FXF3B_BatchRow, action As String) As FXF3B
+            If _session Is Nothing Then
+                Throw New InvalidOperationException("FXF3B session manager is not initialized.")
+            End If
+
+            If Not _session.IsConnected Then
+                Dim connectErr = _session.LastConnectError
+                If String.IsNullOrWhiteSpace(connectErr) Then
+                    Throw New InvalidOperationException("FXF3B cannot run because the host session is not connected.")
+                End If
+                Throw New InvalidOperationException("FXF3B cannot run because the host session is not connected. Last connect error: " & connectErr)
+            End If
+
+            Dim screen As FXF3B = _session.FXF3B
+            If screen Is Nothing Then
+                Throw New InvalidOperationException(String.Format(
+                    "FXF3B screen object is null before action {0}. Key={1}/{2}/{3}/{4}/{5} Carrier={6} CustType={7}",
+                    action,
+                    SafeTrim(row.Account),
+                    SafeTrim(row.Authority),
+                    SafeTrim(row.Number),
+                    SafeTrim(row.Item),
+                    SafeTrim(row.Part),
+                    SafeTrim(row.Carrier),
+                    SafeTrim(row.CustType)))
+            End If
+
+            Return screen
+        End Function
+
+        Private Function SafeTrim(value As String) As String
+            If value Is Nothing Then Return "<null>"
+            Return value.Trim()
+        End Function
 
         ' ── Import from CSV ──────────────────────────────────────────
         Private Sub ExecuteLoadCsv()
@@ -347,6 +409,13 @@ Namespace ViewModels
                     Dim f = Core.CsvHelper.SplitLine(line)
                     Dim G  As Func(Of String, String)  = Function(col As String) Core.CsvHelper.GetField(f, hdr, col)
                     Dim GD As Func(Of String, String, String) = Function(col As String, def As String) Core.CsvHelper.GetFieldOrDefault(f, hdr, col, def)
+                    Dim GA As Func(Of String(), String) = Function(cols As String())
+                        For Each c In cols
+                            Dim v = Core.CsvHelper.GetField(f, hdr, c)
+                            If Not String.IsNullOrWhiteSpace(v) Then Return v
+                        Next
+                        Return ""
+                    End Function
 
                     Dim row As New FXF3B_BatchRow()
                     row.Action    = G("Action")
@@ -366,44 +435,53 @@ Namespace ViewModels
                     row.GT1Dir    = GD("GT1Dir",    "NA")
                     row.GT1Type   = GD("GT1Type",   "NA")
                     row.GT1R1Name    = G("GT1R1Name")
-                    row.GT1R1Country = G("GT1R1Cty")
+                    row.GT1R1Country = GA(New String() {"GT1R1Cty", "GT1R1Country"})
                     row.GT1R2Name    = G("GT1R2Name")
-                    row.GT1R2Country = G("GT1R2Cty")
+                    row.GT1R2Country = GA(New String() {"GT1R2Cty", "GT1R2Country"})
                     row.GT1R3Name    = G("GT1R3Name")
-                    row.GT1R3Country = G("GT1R3Cty")
+                    row.GT1R3Country = GA(New String() {"GT1R3Cty", "GT1R3Country"})
                     row.GT1R4Name    = G("GT1R4Name")
-                    row.GT1R4Country = G("GT1R4Cty")
+                    row.GT1R4Country = GA(New String() {"GT1R4Cty", "GT1R4Country"})
                     row.GT1R5Name    = G("GT1R5Name")
-                    row.GT1R5Country = G("GT1R5Cty")
+                    row.GT1R5Country = GA(New String() {"GT1R5Cty", "GT1R5Country"})
                     row.GT2IncExc = GD("GT2IncExc", "NA")
                     row.GT2Dir    = GD("GT2Dir",    "NA")
                     row.GT2Type   = GD("GT2Type",   "NA")
                     row.GT2R1Name    = G("GT2R1Name")
-                    row.GT2R1Country = G("GT2R1Cty")
+                    row.GT2R1Country = GA(New String() {"GT2R1Cty", "GT2R1Country"})
                     row.GT2R2Name    = G("GT2R2Name")
-                    row.GT2R2Country = G("GT2R2Cty")
+                    row.GT2R2Country = GA(New String() {"GT2R2Cty", "GT2R2Country"})
                     row.GT2R3Name    = G("GT2R3Name")
-                    row.GT2R3Country = G("GT2R3Cty")
+                    row.GT2R3Country = GA(New String() {"GT2R3Cty", "GT2R3Country"})
                     row.GT2R4Name    = G("GT2R4Name")
-                    row.GT2R4Country = G("GT2R4Cty")
+                    row.GT2R4Country = GA(New String() {"GT2R4Cty", "GT2R4Country"})
                     row.GT2R5Name    = G("GT2R5Name")
-                    row.GT2R5Country = G("GT2R5Cty")
+                    row.GT2R5Country = GA(New String() {"GT2R5Cty", "GT2R5Country"})
                     row.FsAuth  = G("FsAuth")
                     row.FsNum   = G("FsNum")
                     row.FsItem  = G("FsItem")
                     row.RateEff = G("RateEff")
                     row.ClsZip  = GD("ClsZip",  "NA")
+                    row.ClsZipAuth = G("ClsZipAuth")
+                    row.ClsZipNum  = G("ClsZipNum")
+                    row.ClsZipSec  = G("ClsZipSec")
+                    row.ExcClass      = G("ExcClass")
+                    row.ExcClassMaxWgt = G("ExcClassMaxWgt")
                     row.GenGeoA = GD("GenGeoA", "NA")
                     row.DT1Disc = G("DT1Disc") : row.DT1MinChg = G("DT1MinChg") : row.DT1MaxWgt = G("DT1MaxWgt") : row.DT1FloorMin = G("DT1FloorMin") : row.DT1EffDate = G("DT1EffDate") : row.DT1CanDate = G("DT1CanDate")
                     row.DT2Disc = G("DT2Disc") : row.DT2MinChg = G("DT2MinChg") : row.DT2MaxWgt = G("DT2MaxWgt") : row.DT2FloorMin = G("DT2FloorMin") : row.DT2EffDate = G("DT2EffDate") : row.DT2CanDate = G("DT2CanDate")
                     row.DT3Disc = G("DT3Disc") : row.DT3MinChg = G("DT3MinChg") : row.DT3MaxWgt = G("DT3MaxWgt") : row.DT3FloorMin = G("DT3FloorMin") : row.DT3EffDate = G("DT3EffDate") : row.DT3CanDate = G("DT3CanDate")
                     row.DT4Disc = G("DT4Disc") : row.DT4MinChg = G("DT4MinChg") : row.DT4MaxWgt = G("DT4MaxWgt") : row.DT4FloorMin = G("DT4FloorMin") : row.DT4EffDate = G("DT4EffDate") : row.DT4CanDate = G("DT4CanDate")
                     row.DT5Disc = G("DT5Disc") : row.DT5MinChg = G("DT5MinChg") : row.DT5MaxWgt = G("DT5MaxWgt") : row.DT5FloorMin = G("DT5FloorMin") : row.DT5EffDate = G("DT5EffDate") : row.DT5CanDate = G("DT5CanDate")
+                    row.LastMaintDate = G("LastMaintDate")
+                    row.OperatorId   = G("OperatorId")
+                    row.Revision     = G("Revision")
                     row.IsSelected = True
                     BatchRows.Add(row)
                     count += 1
-                Catch
+                Catch ex As Exception
                     errors += 1
+                    BannerMessage = "Import warning at CSV row " & (i + 1).ToString() & ": " & ex.Message
                 End Try
             Next
 
@@ -466,12 +544,20 @@ Namespace ViewModels
                 br.FsItem   = G("FSITEM")
                 br.RateEff  = G("RATEEFF")
                 br.ClsZip   = GD("CLSZIP",   "NA")
+                br.ClsZipAuth = G("CLSZIPAUTH")
+                br.ClsZipNum  = G("CLSZIPNUM")
+                br.ClsZipSec  = G("CLSZIPSEC")
+                br.ExcClass      = G("EXCCLASS")
+                br.ExcClassMaxWgt = G("EXCCLASSMAXWGT")
                 br.GenGeoA  = GD("GENGEOA",  "NA")
                 br.DT1Disc = G("DT1DISC") : br.DT1MinChg = G("DT1MINCHG") : br.DT1MaxWgt = G("DT1MAXWGT") : br.DT1FloorMin = G("DT1FLOORMIN") : br.DT1EffDate = G("DT1EFFDATE") : br.DT1CanDate = G("DT1CANDATE")
                 br.DT2Disc = G("DT2DISC") : br.DT2MinChg = G("DT2MINCHG") : br.DT2MaxWgt = G("DT2MAXWGT") : br.DT2FloorMin = G("DT2FLOORMIN") : br.DT2EffDate = G("DT2EFFDATE") : br.DT2CanDate = G("DT2CANDATE")
                 br.DT3Disc = G("DT3DISC") : br.DT3MinChg = G("DT3MINCHG") : br.DT3MaxWgt = G("DT3MAXWGT") : br.DT3FloorMin = G("DT3FLOORMIN") : br.DT3EffDate = G("DT3EFFDATE") : br.DT3CanDate = G("DT3CANDATE")
                 br.DT4Disc = G("DT4DISC") : br.DT4MinChg = G("DT4MINCHG") : br.DT4MaxWgt = G("DT4MAXWGT") : br.DT4FloorMin = G("DT4FLOORMIN") : br.DT4EffDate = G("DT4EFFDATE") : br.DT4CanDate = G("DT4CANDATE")
                 br.DT5Disc = G("DT5DISC") : br.DT5MinChg = G("DT5MINCHG") : br.DT5MaxWgt = G("DT5MAXWGT") : br.DT5FloorMin = G("DT5FLOORMIN") : br.DT5EffDate = G("DT5EFFDATE") : br.DT5CanDate = G("DT5CANDATE")
+                br.LastMaintDate = G("LASTMAINTDATE")
+                br.OperatorId   = G("OPERATORID")
+                br.Revision     = G("REVISION")
                 br.IsSelected = True
                 BatchRows.Add(br)
             Next
@@ -524,6 +610,22 @@ Namespace ViewModels
             If s Is Nothing Then Return ""
             If s.Contains(",") Then Return """" & s.Replace("""", """""") & """"
             Return s
+        End Function
+
+        Private Shared Function BuildErrorDetails(ex As Exception) As String
+            Dim parts As New List(Of String) From {ex.Message}
+            Dim cur = ex.InnerException
+            While cur IsNot Nothing
+                If Not String.IsNullOrWhiteSpace(cur.Message) Then parts.Add(cur.Message)
+                cur = cur.InnerException
+            End While
+
+            Dim detail = String.Join(" | ", parts)
+            If TypeOf ex Is GenericScreenScraperException AndAlso
+               Not String.IsNullOrWhiteSpace(DirectCast(ex, GenericScreenScraperException).ScreenDump) Then
+                detail &= " [screen dump available]"
+            End If
+            Return detail
         End Function
 
     End Class
@@ -777,6 +879,12 @@ Namespace ViewModels
                             row.Status = OperationStatus.Success
                         End Sub)
 
+                    Case "CANCEL"
+                        Application.Current.Dispatcher.InvokeAsync(Sub()
+                            row.Status = OperationStatus.Skipped
+                            row.StatusMessage = "CANCEL is not supported for FXF3C by the screen scraper API."
+                        End Sub)
+
                     Case Else
                         Application.Current.Dispatcher.InvokeAsync(Sub()
                             row.Status        = OperationStatus.Skipped
@@ -789,18 +897,21 @@ Namespace ViewModels
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Account not found: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As NoDiscountRecordsException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Warning
                     row.StatusMessage = "No discount records"
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 ' Warning — not rethrown
             Catch ex As NumericValueException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Invalid numeric value: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As GenericScreenScraperException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
@@ -808,12 +919,14 @@ Namespace ViewModels
                     row.StatusMessage = ex.Message &
                         If(Not String.IsNullOrWhiteSpace(ex.ScreenDump), " [screen dump available]", "")
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As Exception
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             End Try
         End Sub
@@ -859,6 +972,42 @@ Namespace ViewModels
                     row.Number    = G("Number")
                     row.Item      = G("Item")
                     row.Part      = G("Part")
+                    row.Release      = If(G("Release").ToUpper() = "Y", "Y", "N")
+                    row.R1PlusMinus  = GD("R1PlusMinus", "NA")
+                    row.R1Dir        = GD("R1Dir",       "NA")
+                    row.R1Type       = GD("R1Type",      "NA")
+                    row.R1Name       = G("R1Name")
+                    row.R1State      = G("R1State")
+                    row.R1Country    = G("R1Country")
+                    row.R2PlusMinus  = GD("R2PlusMinus", "NA")
+                    row.R2Dir        = GD("R2Dir",       "NA")
+                    row.R2Type       = GD("R2Type",      "NA")
+                    row.R2Name       = G("R2Name")
+                    row.R2State      = G("R2State")
+                    row.R2Country    = G("R2Country")
+                    row.R3PlusMinus  = GD("R3PlusMinus", "NA")
+                    row.R3Dir        = GD("R3Dir",       "NA")
+                    row.R3Type       = GD("R3Type",      "NA")
+                    row.R3Name       = G("R3Name")
+                    row.R3State      = G("R3State")
+                    row.R3Country    = G("R3Country")
+                    row.R4PlusMinus  = GD("R4PlusMinus", "NA")
+                    row.R4Dir        = GD("R4Dir",       "NA")
+                    row.R4Type       = GD("R4Type",      "NA")
+                    row.R4Name       = G("R4Name")
+                    row.R4State      = G("R4State")
+                    row.R4Country    = G("R4Country")
+                    row.R5PlusMinus  = GD("R5PlusMinus", "NA")
+                    row.R5Dir        = GD("R5Dir",       "NA")
+                    row.R5Type       = GD("R5Type",      "NA")
+                    row.R5Name       = G("R5Name")
+                    row.R5State      = G("R5State")
+                    row.R5Country    = G("R5Country")
+                    row.SrvDaysLo    = G("SrvDaysLo")
+                    row.SrvDaysHi    = G("SrvDaysHi")
+                    row.LastMaintDate = G("LastMaintDate")
+                    row.OperatorId   = G("OperatorId")
+                    row.Revision     = G("Revision")
                     BatchRows.Add(row)
                     count += 1
                 Catch
@@ -922,6 +1071,9 @@ Namespace ViewModels
                 br.R5Country    = G("R5CTY")
                 br.SrvDaysLo    = G("SRVDAYSLO")
                 br.SrvDaysHi    = G("SRVDAYSHI")
+                br.LastMaintDate = G("LASTMAINTDATE")
+                br.OperatorId   = G("OPERATORID")
+                br.Revision     = G("REVISION")
                 BatchRows.Add(br)
             Next
         End Sub
@@ -1314,6 +1466,33 @@ Namespace ViewModels
                     row.Number    = G("Number")
                     row.Item      = G("Item")
                     row.Part      = G("Part")
+                    row.EffDate      = G("EffDate")
+                    row.CanDateItem  = G("CanDateItem")
+                    row.ExcCls       = G("ExcCls")
+                    row.ExcMaxW      = G("ExcMaxW")
+                    row.P1Type       = GD("P1Type",  "NA")
+                    row.P1Prod1      = G("P1Prod1")
+                    row.P1Prod2      = G("P1Prod2")
+                    row.P1ExcCls     = G("P1ExcCls")
+                    row.P2Type       = GD("P2Type",  "NA")
+                    row.P2Prod1      = G("P2Prod1")
+                    row.P2Prod2      = G("P2Prod2")
+                    row.P2ExcCls     = G("P2ExcCls")
+                    row.P3Type       = GD("P3Type",  "NA")
+                    row.P3Prod1      = G("P3Prod1")
+                    row.P3Prod2      = G("P3Prod2")
+                    row.P3ExcCls     = G("P3ExcCls")
+                    row.P4Type       = GD("P4Type",  "NA")
+                    row.P4Prod1      = G("P4Prod1")
+                    row.P4Prod2      = G("P4Prod2")
+                    row.P4ExcCls     = G("P4ExcCls")
+                    row.P5Type       = GD("P5Type",  "NA")
+                    row.P5Prod1      = G("P5Prod1")
+                    row.P5Prod2      = G("P5Prod2")
+                    row.P5ExcCls     = G("P5ExcCls")
+                    row.LastMaintDate = G("LastMaintDate")
+                    row.OperatorId   = G("OperatorId")
+                    row.Revision     = G("Revision")
                     BatchRows.Add(row)
                     count += 1
                 Catch
@@ -1368,6 +1547,9 @@ Namespace ViewModels
                 br.P5Prod1     = G("P5PROD1")
                 br.P5Prod2     = G("P5PROD2")
                 br.P5ExcCls    = G("P5EXCCLS")
+                br.LastMaintDate = G("LASTMAINTDATE")
+                br.OperatorId   = G("OPERATORID")
+                br.Revision     = G("REVISION")
                 BatchRows.Add(br)
             Next
         End Sub
@@ -1800,6 +1982,10 @@ Namespace ViewModels
                 br.Alternation    = GD("ALTERNATION",   "NA")
                 br.ClassRates     = GD("CLASSRATES",    "NA")
                 br.RateManually   = If(G("RATEMANUALLY").ToUpper() = "Y", "Y", "N")
+                br.ClsTrfAuth     = G("CLSTRFAUTH")
+                br.ClsTrfNum      = G("CLSTRFNUM")
+                br.ClsTrfSec      = G("CLSTRFSEC")
+                br.RateEffDate    = G("RATEEFFDATE")
                 br.RT1Wgt  = G("RT1WGT")  : br.RT1Type  = GD("RT1TYPE",  "NA") : br.RT1Amt  = G("RT1AMT")
                 br.RT2Wgt  = G("RT2WGT")  : br.RT2Type  = GD("RT2TYPE",  "NA") : br.RT2Amt  = G("RT2AMT")
                 br.RT3Wgt  = G("RT3WGT")  : br.RT3Type  = GD("RT3TYPE",  "NA") : br.RT3Amt  = G("RT3AMT")
@@ -1810,6 +1996,9 @@ Namespace ViewModels
                 br.RT8Wgt  = G("RT8WGT")  : br.RT8Type  = GD("RT8TYPE",  "NA") : br.RT8Amt  = G("RT8AMT")
                 br.RT9Wgt  = G("RT9WGT")  : br.RT9Type  = GD("RT9TYPE",  "NA") : br.RT9Amt  = G("RT9AMT")
                 br.RT10Wgt = G("RT10WGT") : br.RT10Type = GD("RT10TYPE", "NA") : br.RT10Amt = G("RT10AMT")
+                br.LastMaintDate  = G("LASTMAINTDATE")
+                br.OperatorId     = G("OPERATORID")
+                br.Revision       = G("REVISION")
                 BatchRows.Add(br)
             Next
         End Sub
@@ -2203,6 +2392,26 @@ Namespace ViewModels
                     row.Number    = G("Number")
                     row.Item      = G("Item")
                     row.Part      = G("Part")
+                    row.AdjType       = GD("AdjType",        "NA")
+                    row.Condition     = G("Condition")
+                    row.PrepdOrCollect = GD("PrepdOrCollect", "NA")
+                    row.EffDate       = G("EffDate")
+                    row.CanDateItem   = G("CanDateItem")
+                    row.Comments      = G("Comments")
+                    row.AppRule       = GD("AppRule",        "NA")
+                    row.RT1Wgt  = G("RT1Wgt")  : row.RT1DiscAdjDir  = GD("RT1DiscAdjDir",  "NA") : row.RT1DiscAdjUnits  = GD("RT1DiscAdjUnits",  "NA") : row.RT1DiscAdjType  = GD("RT1DiscAdjType",  "NA") : row.RT1Amt  = G("RT1Amt")
+                    row.RT2Wgt  = G("RT2Wgt")  : row.RT2DiscAdjDir  = GD("RT2DiscAdjDir",  "NA") : row.RT2DiscAdjUnits  = GD("RT2DiscAdjUnits",  "NA") : row.RT2DiscAdjType  = GD("RT2DiscAdjType",  "NA") : row.RT2Amt  = G("RT2Amt")
+                    row.RT3Wgt  = G("RT3Wgt")  : row.RT3DiscAdjDir  = GD("RT3DiscAdjDir",  "NA") : row.RT3DiscAdjUnits  = GD("RT3DiscAdjUnits",  "NA") : row.RT3DiscAdjType  = GD("RT3DiscAdjType",  "NA") : row.RT3Amt  = G("RT3Amt")
+                    row.RT4Wgt  = G("RT4Wgt")  : row.RT4DiscAdjDir  = GD("RT4DiscAdjDir",  "NA") : row.RT4DiscAdjUnits  = GD("RT4DiscAdjUnits",  "NA") : row.RT4DiscAdjType  = GD("RT4DiscAdjType",  "NA") : row.RT4Amt  = G("RT4Amt")
+                    row.RT5Wgt  = G("RT5Wgt")  : row.RT5DiscAdjDir  = GD("RT5DiscAdjDir",  "NA") : row.RT5DiscAdjUnits  = GD("RT5DiscAdjUnits",  "NA") : row.RT5DiscAdjType  = GD("RT5DiscAdjType",  "NA") : row.RT5Amt  = G("RT5Amt")
+                    row.RT6Wgt  = G("RT6Wgt")  : row.RT6DiscAdjDir  = GD("RT6DiscAdjDir",  "NA") : row.RT6DiscAdjUnits  = GD("RT6DiscAdjUnits",  "NA") : row.RT6DiscAdjType  = GD("RT6DiscAdjType",  "NA") : row.RT6Amt  = G("RT6Amt")
+                    row.RT7Wgt  = G("RT7Wgt")  : row.RT7DiscAdjDir  = GD("RT7DiscAdjDir",  "NA") : row.RT7DiscAdjUnits  = GD("RT7DiscAdjUnits",  "NA") : row.RT7DiscAdjType  = GD("RT7DiscAdjType",  "NA") : row.RT7Amt  = G("RT7Amt")
+                    row.RT8Wgt  = G("RT8Wgt")  : row.RT8DiscAdjDir  = GD("RT8DiscAdjDir",  "NA") : row.RT8DiscAdjUnits  = GD("RT8DiscAdjUnits",  "NA") : row.RT8DiscAdjType  = GD("RT8DiscAdjType",  "NA") : row.RT8Amt  = G("RT8Amt")
+                    row.RT9Wgt  = G("RT9Wgt")  : row.RT9DiscAdjDir  = GD("RT9DiscAdjDir",  "NA") : row.RT9DiscAdjUnits  = GD("RT9DiscAdjUnits",  "NA") : row.RT9DiscAdjType  = GD("RT9DiscAdjType",  "NA") : row.RT9Amt  = G("RT9Amt")
+                    row.RT10Wgt = G("RT10Wgt") : row.RT10DiscAdjDir = GD("RT10DiscAdjDir", "NA") : row.RT10DiscAdjUnits = GD("RT10DiscAdjUnits", "NA") : row.RT10DiscAdjType = GD("RT10DiscAdjType", "NA") : row.RT10Amt = G("RT10Amt")
+                    row.LastMaintDate = G("LastMaintDate")
+                    row.OperatorId    = G("OperatorId")
+                    row.Revision      = G("Revision")
                     BatchRows.Add(row)
                     count += 1
                 Catch
@@ -2250,6 +2459,9 @@ Namespace ViewModels
                 br.RT8Wgt  = G("RT8WGT")  : br.RT8DiscAdjDir  = GD("RT8DIR",  "NA") : br.RT8DiscAdjUnits  = GD("RT8UNITS",  "NA") : br.RT8DiscAdjType  = GD("RT8TYPE",  "NA") : br.RT8Amt  = G("RT8AMT")
                 br.RT9Wgt  = G("RT9WGT")  : br.RT9DiscAdjDir  = GD("RT9DIR",  "NA") : br.RT9DiscAdjUnits  = GD("RT9UNITS",  "NA") : br.RT9DiscAdjType  = GD("RT9TYPE",  "NA") : br.RT9Amt  = G("RT9AMT")
                 br.RT10Wgt = G("RT10WGT") : br.RT10DiscAdjDir = GD("RT10DIR", "NA") : br.RT10DiscAdjUnits = GD("RT10UNITS", "NA") : br.RT10DiscAdjType = GD("RT10TYPE", "NA") : br.RT10Amt = G("RT10AMT")
+                br.LastMaintDate = G("LASTMAINTDATE")
+                br.OperatorId   = G("OPERATORID")
+                br.Revision     = G("REVISION")
                 BatchRows.Add(br)
             Next
         End Sub
@@ -2680,16 +2892,19 @@ Namespace ViewModels
                 br.EffDate        = G("EFFDATE")
                 br.CanDateItem    = G("CANDATEITEM")
                 br.Comments       = G("COMMENTS")
-                br.S1Cond   = G("S1COND")  : br.S1Desc   = G("S1DESC")  : br.S1Type   = G("S1TYPE")  : br.S1Amount   = G("S1AMT")  : br.S1CondId   = G("S1CONDID")
-                br.S2Cond   = G("S2COND")  : br.S2Desc   = G("S2DESC")  : br.S2Type   = G("S2TYPE")  : br.S2Amount   = G("S2AMT")  : br.S2CondId   = G("S2CONDID")
-                br.S3Cond   = G("S3COND")  : br.S3Desc   = G("S3DESC")  : br.S3Type   = G("S3TYPE")  : br.S3Amount   = G("S3AMT")  : br.S3CondId   = G("S3CONDID")
-                br.S4Cond   = G("S4COND")  : br.S4Desc   = G("S4DESC")  : br.S4Type   = G("S4TYPE")  : br.S4Amount   = G("S4AMT")  : br.S4CondId   = G("S4CONDID")
-                br.S5Cond   = G("S5COND")  : br.S5Desc   = G("S5DESC")  : br.S5Type   = G("S5TYPE")  : br.S5Amount   = G("S5AMT")  : br.S5CondId   = G("S5CONDID")
-                br.S6Cond   = G("S6COND")  : br.S6Desc   = G("S6DESC")  : br.S6Type   = G("S6TYPE")  : br.S6Amount   = G("S6AMT")  : br.S6CondId   = G("S6CONDID")
-                br.S7Cond   = G("S7COND")  : br.S7Desc   = G("S7DESC")  : br.S7Type   = G("S7TYPE")  : br.S7Amount   = G("S7AMT")  : br.S7CondId   = G("S7CONDID")
-                br.S8Cond   = G("S8COND")  : br.S8Desc   = G("S8DESC")  : br.S8Type   = G("S8TYPE")  : br.S8Amount   = G("S8AMT")  : br.S8CondId   = G("S8CONDID")
-                br.S9Cond   = G("S9COND")  : br.S9Desc   = G("S9DESC")  : br.S9Type   = G("S9TYPE")  : br.S9Amount   = G("S9AMT")  : br.S9CondId   = G("S9CONDID")
-                br.S10Cond  = G("S10COND") : br.S10Desc  = G("S10DESC") : br.S10Type  = G("S10TYPE") : br.S10Amount  = G("S10AMT") : br.S10CondId  = G("S10CONDID")
+                br.S1Cond   = G("S1COND")  : br.S1Desc   = G("S1DESC")  : br.S1MinWgt = G("S1MINWGT")  : br.S1MaxWgt = G("S1MAXWGT")  : br.S1Type   = G("S1TYPE")  : br.S1Amount   = G("S1AMT")  : br.S1MinAmt = G("S1MINAMT")  : br.S1MaxAmt = G("S1MAXAMT")  : br.S1App = G("S1APP")  : br.S1CondId   = G("S1CONDID")
+                br.S2Cond   = G("S2COND")  : br.S2Desc   = G("S2DESC")  : br.S2MinWgt = G("S2MINWGT")  : br.S2MaxWgt = G("S2MAXWGT")  : br.S2Type   = G("S2TYPE")  : br.S2Amount   = G("S2AMT")  : br.S2MinAmt = G("S2MINAMT")  : br.S2MaxAmt = G("S2MAXAMT")  : br.S2App = G("S2APP")  : br.S2CondId   = G("S2CONDID")
+                br.S3Cond   = G("S3COND")  : br.S3Desc   = G("S3DESC")  : br.S3MinWgt = G("S3MINWGT")  : br.S3MaxWgt = G("S3MAXWGT")  : br.S3Type   = G("S3TYPE")  : br.S3Amount   = G("S3AMT")  : br.S3MinAmt = G("S3MINAMT")  : br.S3MaxAmt = G("S3MAXAMT")  : br.S3App = G("S3APP")  : br.S3CondId   = G("S3CONDID")
+                br.S4Cond   = G("S4COND")  : br.S4Desc   = G("S4DESC")  : br.S4MinWgt = G("S4MINWGT")  : br.S4MaxWgt = G("S4MAXWGT")  : br.S4Type   = G("S4TYPE")  : br.S4Amount   = G("S4AMT")  : br.S4MinAmt = G("S4MINAMT")  : br.S4MaxAmt = G("S4MAXAMT")  : br.S4App = G("S4APP")  : br.S4CondId   = G("S4CONDID")
+                br.S5Cond   = G("S5COND")  : br.S5Desc   = G("S5DESC")  : br.S5MinWgt = G("S5MINWGT")  : br.S5MaxWgt = G("S5MAXWGT")  : br.S5Type   = G("S5TYPE")  : br.S5Amount   = G("S5AMT")  : br.S5MinAmt = G("S5MINAMT")  : br.S5MaxAmt = G("S5MAXAMT")  : br.S5App = G("S5APP")  : br.S5CondId   = G("S5CONDID")
+                br.S6Cond   = G("S6COND")  : br.S6Desc   = G("S6DESC")  : br.S6MinWgt = G("S6MINWGT")  : br.S6MaxWgt = G("S6MAXWGT")  : br.S6Type   = G("S6TYPE")  : br.S6Amount   = G("S6AMT")  : br.S6MinAmt = G("S6MINAMT")  : br.S6MaxAmt = G("S6MAXAMT")  : br.S6App = G("S6APP")  : br.S6CondId   = G("S6CONDID")
+                br.S7Cond   = G("S7COND")  : br.S7Desc   = G("S7DESC")  : br.S7MinWgt = G("S7MINWGT")  : br.S7MaxWgt = G("S7MAXWGT")  : br.S7Type   = G("S7TYPE")  : br.S7Amount   = G("S7AMT")  : br.S7MinAmt = G("S7MINAMT")  : br.S7MaxAmt = G("S7MAXAMT")  : br.S7App = G("S7APP")  : br.S7CondId   = G("S7CONDID")
+                br.S8Cond   = G("S8COND")  : br.S8Desc   = G("S8DESC")  : br.S8MinWgt = G("S8MINWGT")  : br.S8MaxWgt = G("S8MAXWGT")  : br.S8Type   = G("S8TYPE")  : br.S8Amount   = G("S8AMT")  : br.S8MinAmt = G("S8MINAMT")  : br.S8MaxAmt = G("S8MAXAMT")  : br.S8App = G("S8APP")  : br.S8CondId   = G("S8CONDID")
+                br.S9Cond   = G("S9COND")  : br.S9Desc   = G("S9DESC")  : br.S9MinWgt = G("S9MINWGT")  : br.S9MaxWgt = G("S9MAXWGT")  : br.S9Type   = G("S9TYPE")  : br.S9Amount   = G("S9AMT")  : br.S9MinAmt = G("S9MINAMT")  : br.S9MaxAmt = G("S9MAXAMT")  : br.S9App = G("S9APP")  : br.S9CondId   = G("S9CONDID")
+                br.S10Cond  = G("S10COND") : br.S10Desc  = G("S10DESC") : br.S10MinWgt = G("S10MINWGT") : br.S10MaxWgt = G("S10MAXWGT") : br.S10Type  = G("S10TYPE") : br.S10Amount  = G("S10AMT") : br.S10MinAmt = G("S10MINAMT") : br.S10MaxAmt = G("S10MAXAMT") : br.S10App = G("S10APP") : br.S10CondId  = G("S10CONDID")
+                br.LastMaintDate = G("LASTMAINTDATE")
+                br.OperatorId    = G("OPERATORID")
+                br.Revision      = G("REVISION")
                 BatchRows.Add(br)
             Next
         End Sub
