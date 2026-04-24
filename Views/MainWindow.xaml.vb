@@ -1,8 +1,8 @@
-Option Strict On
+﻿Option Strict On
 Option Explicit On
 
 Imports System.Windows
-Imports FXF3A_Tool.ViewModels
+Imports Logility_Freight.ViewModels
 
 Namespace Views
 

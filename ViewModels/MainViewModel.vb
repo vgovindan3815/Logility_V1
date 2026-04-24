@@ -2,7 +2,7 @@
 Option Explicit On
 
 Imports System.Windows
-Imports FXF3A_Tool.Core
+Imports Logility_Freight.Core
 Imports Microsoft.Win32
 
 Namespace ViewModels

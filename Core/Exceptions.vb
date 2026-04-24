@@ -1,10 +1,10 @@
-Option Strict On
+﻿Option Strict On
 Option Explicit On
 
 ' ================================================================
 '  Exceptions.vb
 '  Re-exports / documents the FedEx screen scraping exceptions
-'  so all ViewModels can import FXF3A_Tool.Core and catch them
+'  so all ViewModels can import Logility_Freight.Core and catch them
 '  by short name without needing a direct reference to the
 '  FedEx.PABST.SS.Exceptions namespace everywhere.
 '
@@ -14,7 +14,7 @@ Option Explicit On
 ' ================================================================
 
 ' Import the FedEx exception namespace so ViewModels only need:
-'   Imports FXF3A_Tool.Core
+'   Imports Logility_Freight.Core
 ' and can catch: AccountNotFoundException, NoDiscountRecordsException,
 '                NumericValueException, GenericScreenScraperException
 

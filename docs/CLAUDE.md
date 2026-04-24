@@ -1,4 +1,4 @@
-# FXF3A Mainframe Tool — Project Context
+﻿# FXF3A Mainframe Tool — Project Context
 
 ## What this project is
 
@@ -31,8 +31,8 @@ The emulator session is created and held open for the lifetime of the app.
 ## Solution structure
 
 ```
-FXF3A_Tool/
-├── FXF3A_Tool.vbproj            ← WPF app project
+Logility_Freight/
+├── Logility_Freight.vbproj            ← WPF app project
 ├── App.xaml / App.xaml.vb
 │
 ├── Core/
@@ -263,10 +263,10 @@ WinFX targets needed for MarkupCompilePass1 (XAML → .g.vb generation).
 
 ```powershell
 # Build (Debug)
-& 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe' FXF3A_Tool.vbproj /p:Configuration=Debug /t:Rebuild
+& 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe' Logility_Freight.vbproj /p:Configuration=Debug /t:Rebuild
 
 # Build (Release)
-& 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe' FXF3A_Tool.vbproj /p:Configuration=Release /t:Rebuild
+& 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe' Logility_Freight.vbproj /p:Configuration=Release /t:Rebuild
 
 # Run (after build)
 bin\Debug\Logility_Freight.exe

@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="Views.FXF3B_View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="clr-namespace:FXF3A_Tool.ViewModels"
+             xmlns:vm="clr-namespace:Logility_Freight.ViewModels"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              Background="#F0F2F5">
 

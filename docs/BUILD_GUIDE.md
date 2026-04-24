@@ -1,4 +1,4 @@
-# Logility Freight - Build Guide
+﻿# Logility Freight - Build Guide
 
 This guide is for the current repository state and current project file settings.
 
@@ -8,7 +8,7 @@ This guide is for the current repository state and current project file settings
 - Language: VB.NET + WPF
 - Platform target: x64
 - Assembly name: Logility_Freight
-- Project file: FXF3A_Tool.vbproj
+- Project file: Logility_Freight.vbproj
 
 ## Prerequisites
 
@@ -30,13 +30,13 @@ This guide is for the current repository state and current project file settings
 Debug build:
 
 ```powershell
-& 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe' FXF3A_Tool.vbproj /p:Configuration=Debug /t:Rebuild /v:minimal
+& 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe' Logility_Freight.vbproj /p:Configuration=Debug /t:Rebuild /v:minimal
 ```
 
 Release build:
 
 ```powershell
-& 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe' FXF3A_Tool.vbproj /p:Configuration=Release /t:Rebuild /v:minimal
+& 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe' Logility_Freight.vbproj /p:Configuration=Release /t:Rebuild /v:minimal
 ```
 
 ## Expected Outputs

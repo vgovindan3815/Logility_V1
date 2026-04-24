@@ -1,7 +1,7 @@
 ﻿Option Strict On
 Option Explicit On
 
-Imports FXF3A_Tool.Core
+Imports Logility_Freight.Core
 
 Namespace Models
 

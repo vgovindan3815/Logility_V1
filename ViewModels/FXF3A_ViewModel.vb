@@ -7,8 +7,8 @@ Imports System.Text
 Imports System.Threading.Tasks
 Imports System.Windows
 Imports FedEx.PABST.SS.Exceptions
-Imports FXF3A_Tool.Core
-Imports FXF3A_Tool.Models
+Imports Logility_Freight.Core
+Imports Logility_Freight.Models
 
 Namespace ViewModels
 

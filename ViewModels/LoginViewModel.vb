@@ -3,7 +3,7 @@ Option Explicit On
 
 Imports System.Threading.Tasks
 Imports System.Windows
-Imports FXF3A_Tool.Core
+Imports Logility_Freight.Core
 
 Namespace ViewModels
 

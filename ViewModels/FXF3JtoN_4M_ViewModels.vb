@@ -1,4 +1,4 @@
-Option Strict On
+﻿Option Strict On
 Option Explicit On
 
 Imports System.Collections.ObjectModel
@@ -9,8 +9,8 @@ Imports System.Windows
 Imports FedEx.PABST.SS.SSLib
 Imports FedEx.PABST.SS.Screens
 Imports FedEx.PABST.SS.Exceptions
-Imports FXF3A_Tool.Core
-Imports FXF3A_Tool.Models
+Imports Logility_Freight.Core
+Imports Logility_Freight.Models
 
 ' ================================================================
 '  FXF3J, FXF3K, FXF3M, FXF3N, FXF4M ViewModels

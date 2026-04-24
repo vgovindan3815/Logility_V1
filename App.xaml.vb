@@ -1,4 +1,4 @@
-Option Strict On
+﻿Option Strict On
 Option Explicit On
 
 Imports System.Windows
@@ -62,7 +62,7 @@ Public Partial Class Application
     Private Function TrySetLoginError(msg As String) As Boolean
         If Current.MainWindow Is Nothing Then Return False
         Dim mainVm = TryCast(Current.MainWindow.DataContext,
-                             FXF3A_Tool.ViewModels.MainViewModel)
+                             Logility_Freight.ViewModels.MainViewModel)
         If mainVm Is Nothing OrElse mainVm.LoginVM Is Nothing Then Return False
         mainVm.LoginVM.IsBusy    = False
         mainVm.LoginVM.ErrorBanner = msg

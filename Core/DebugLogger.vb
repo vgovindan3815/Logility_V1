@@ -1,9 +1,9 @@
-Option Strict On
+﻿Option Strict On
 Option Explicit On
 
 Imports System.IO
 Imports System.Text
-Imports FXF3A_Tool.Models
+Imports Logility_Freight.Models
 
 Namespace Core
 
