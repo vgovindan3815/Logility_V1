@@ -42,10 +42,10 @@
                                    VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="FXF3A Mainframe Tool"
+                        <TextBlock Text="Logility"
                                    FontFamily="Calibri" FontSize="18"
                                    FontWeight="Bold" Foreground="#0F1C3F"/>
-                        <TextBlock Text="FedEx Freight CICS Pricing System"
+                        <TextBlock Text="FedEx Freight CICS Pricing System (Logility_Freight)"
                                    FontFamily="Calibri" FontSize="11"
                                    Foreground="#555E7A"/>
                     </StackPanel>

@@ -37,6 +37,9 @@ Namespace Core
                 Dim depth As Integer = 1
                 Do While inner IsNot Nothing
                     sb.AppendLine(String.Format("Inner ({0}): {1}: {2}", depth, inner.GetType().Name, inner.Message))
+                    If inner.StackTrace IsNot Nothing Then
+                        sb.AppendLine("  InnerStack: " & inner.StackTrace.Replace(Environment.NewLine, Environment.NewLine & "  "))
+                    End If
                     inner = inner.InnerException
                     depth += 1
                 Loop

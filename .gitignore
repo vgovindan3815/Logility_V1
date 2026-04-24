@@ -38,7 +38,9 @@ gen_connection_guide_docx.py
 
 # Distributable packages
 FXF3A_Tool_*_dist.zip
-make_package.py
+dist/
+archives/
+bin/Debug_hotfix*/
 
 # Python cache / local scratch
 __pycache__/

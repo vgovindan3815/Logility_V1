@@ -1,4 +1,4 @@
-﻿Option Strict On
+Option Strict On
 Option Explicit On
 
 Imports System.Collections.ObjectModel
@@ -233,7 +233,7 @@ Namespace ViewModels
                         Dim parms As New FXF3J.parmClassv1()
                         parms.carrier = row.Carrier
                         parms.fromCust = New FXF3J.custClass()
-                        parms.fromCust.type = ParseCustType(row.CustType)
+                        parms.fromCust.type = ParseCustType(If(String.IsNullOrWhiteSpace(row.FromType), row.CustType, row.FromType))
                         parms.fromCust.name = row.FromName
                         parms.fromCust.auth = row.FromAuth
                         parms.fromCust.nbr  = row.FromNbr
@@ -269,18 +269,21 @@ Namespace ViewModels
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Account not found: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As NoDiscountRecordsException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Warning
                     row.StatusMessage = "No discount records"
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 ' Warning — not rethrown
             Catch ex As NumericValueException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Invalid numeric value: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As GenericScreenScraperException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
@@ -288,12 +291,14 @@ Namespace ViewModels
                     row.StatusMessage = ex.Message &
                         If(Not String.IsNullOrWhiteSpace(ex.ScreenDump), " [screen dump available]", "")
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As Exception
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             End Try
         End Sub
@@ -333,7 +338,8 @@ Namespace ViewModels
                     Dim row As New FXF3J_BatchRow()
                     row.Action      = G("Action")
                     row.Carrier     = GD("Carrier",  "FXFM")
-                    row.CustType    = GD("CustType", "CC")
+                    row.FromType    = GD("FromType", GD("CustType", "CC"))
+                    row.CustType    = row.FromType
                     row.FromName    = G("FromName")
                     row.FromAuth    = G("FromAuth")
                     row.FromNbr     = G("FromNbr")
@@ -395,7 +401,8 @@ Namespace ViewModels
                 Dim br As New FXF3J_BatchRow()
                 br.Action       = G("ACTION")
                 br.Carrier      = GD("CARRIER", "FXFM")
-                br.CustType     = GD("CUSTTYPE", "CC")
+                br.FromType     = GD("FROMTYPE", GD("CUSTTYPE", "CC"))
+                br.CustType     = br.FromType
                 br.FromName     = G("FROMNAME")
                 br.FromAuth     = G("FROMAUTH")
                 br.FromNbr      = G("FROMNBR")
@@ -650,6 +657,12 @@ Namespace ViewModels
                         resultRow.MatrixName       = it.itemHeader.stMatrixName
                         resultRow.MatrixEffDate    = FormatDate(it.effectiveDate)
                         resultRow.MatrixCancelDate = FormatDate(it.cancelDate)
+                        resultRow.FsAuthority      = it.fsAuthority
+                        resultRow.FsNumber         = it.fsNumber
+                        resultRow.FsItem           = it.fsItem
+                        resultRow.LastMaintDate    = FormatDate(it.lastMaintenanceDate)
+                        resultRow.OperatorId       = it.operatorId
+                        resultRow.Revision         = it.revision
                         Application.Current.Dispatcher.InvokeAsync(Sub()
                             Results.Add(resultRow)
                             row.Status = OperationStatus.Success
@@ -679,18 +692,21 @@ Namespace ViewModels
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Account not found: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As NoDiscountRecordsException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Warning
                     row.StatusMessage = "No discount records"
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 ' Warning — not rethrown
             Catch ex As NumericValueException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Invalid numeric value: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As GenericScreenScraperException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
@@ -698,12 +714,14 @@ Namespace ViewModels
                     row.StatusMessage = ex.Message &
                         If(Not String.IsNullOrWhiteSpace(ex.ScreenDump), " [screen dump available]", "")
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As Exception
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             End Try
         End Sub
@@ -746,6 +764,12 @@ Namespace ViewModels
                     row.MatrixName       = G("MatrixName")
                     row.MatrixEffDate    = G("MatrixEffDate")
                     row.MatrixCancelDate = G("MatrixCancelDate")
+                    row.FsAuthority      = G("FsAuthority")
+                    row.FsNumber         = G("FsNumber")
+                    row.FsItem           = G("FsItem")
+                    row.LastMaintDate    = G("LastMaintDate")
+                    row.OperatorId       = G("OperatorId")
+                    row.Revision         = G("Revision")
                     BatchRows.Add(row)
                     count += 1
                 Catch
@@ -765,12 +789,14 @@ Namespace ViewModels
             If dlg.ShowDialog() <> True Then Return
 
             Using sw As New StreamWriter(dlg.FileName, False, Encoding.UTF8)
-                sw.WriteLine("Timestamp,Carrier,MatrixName,MatrixEffDate,MatrixCancelDate,Status")
+                sw.WriteLine("Timestamp,Carrier,MatrixName,MatrixEffDate,MatrixCancelDate,FsAuthority,FsNumber,FsItem,LastMaintDate,OperatorId,Revision,Status")
                 For Each r In Results
                     sw.WriteLine(String.Join(",", {
                         DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                         r.Carrier, Q(r.MatrixName),
                         r.MatrixEffDate, r.MatrixCancelDate,
+                        Q(r.FsAuthority), Q(r.FsNumber), Q(r.FsItem),
+                        r.LastMaintDate, Q(r.OperatorId), Q(r.Revision),
                         r.Status.ToString()
                     }))
                 Next
@@ -793,6 +819,12 @@ Namespace ViewModels
                 br.MatrixName       = G("MATRIXNAME")
                 br.MatrixEffDate    = G("MATRIXEFFDATE")
                 br.MatrixCancelDate = G("MATRIXCANCELDATE")
+                br.FsAuthority      = G("FSAUTHORITY")
+                br.FsNumber         = G("FSNUMBER")
+                br.FsItem           = G("FSITEM")
+                br.LastMaintDate    = G("LASTMAINTDATE")
+                br.OperatorId       = G("OPERATORID")
+                br.Revision         = G("REVISION")
                 BatchRows.Add(br)
             Next
         End Sub
@@ -1098,18 +1130,21 @@ Namespace ViewModels
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Account not found: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As NoDiscountRecordsException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Warning
                     row.StatusMessage = "No discount records"
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 ' Warning — not rethrown
             Catch ex As NumericValueException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Invalid numeric value: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As GenericScreenScraperException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
@@ -1117,12 +1152,14 @@ Namespace ViewModels
                     row.StatusMessage = ex.Message &
                         If(Not String.IsNullOrWhiteSpace(ex.ScreenDump), " [screen dump available]", "")
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As Exception
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             End Try
         End Sub
@@ -1168,6 +1205,19 @@ Namespace ViewModels
                     row.Number    = G("Number")
                     row.Item      = G("Item")
                     row.Part      = G("Part")
+                    row.FsAuth    = G("FsAuth")
+                    row.FsNum     = G("FsNum")
+                    row.FsItem    = G("FsItem")
+                    row.HuType    = G("HuType")
+                    row.Condition = G("Condition")
+                    row.PrepdOrCollect = GD("PrepdOrCollect", "NA")
+                    row.EffDate   = G("EffDate")
+                    row.CanDateItem = G("CanDateItem")
+                    row.Comments  = G("Comments")
+                    row.CalcRule  = G("CalcRule")
+                    row.AllowMaxNum = G("AllowMaxNum")
+                    row.AllowMaxTotWgt = G("AllowMaxTotWgt")
+                    row.AllowMaxPerWgt = G("AllowMaxPerWgt")
                     BatchRows.Add(row)
                     count += 1
                 Catch
@@ -1223,12 +1273,29 @@ Namespace ViewModels
                 br.Number    = G("NUMBER")
                 br.Item      = G("ITEM")
                 br.Part      = G("PART")
+                br.FsAuth           = G("FSAUTH")
+                br.FsNum            = G("FSNUM")
+                br.FsItem           = G("FSITEM")
                 br.Release          = If(G("RELEASE").ToUpper()          = "Y", "Y", "N")
                 br.RateManual       = If(G("RATEMANUAL").ToUpper()       = "Y", "Y", "N")
+                br.HuType           = G("HUTYPE")
+                br.Condition        = G("CONDITION")
+                br.PrepdOrCollect   = GD("PREPDORCOLLECT", "NA")
+                br.EffDate          = G("EFFDATE")
+                br.CanDateItem      = G("CANDATEITEM")
+                br.Comments         = G("COMMENTS")
+                br.CalcRule         = G("CALCRULE")
+                br.AllowMaxNum      = G("ALLOWMAXNUM")
+                br.AllowMaxTotWgt   = G("ALLOWMAXTOTWGT")
+                br.AllowMaxPerWgt   = G("ALLOWMAXPERWGT")
                 br.EwrCls           = If(G("EWRCLS").ToUpper()           = "Y", "Y", "N")
+                br.EwrClsNum        = G("EWRCLSNUM")
                 br.EwrLowRate       = If(G("EWRLOWRATE").ToUpper()       = "Y", "Y", "N")
                 br.EwrHighRate      = If(G("EWRHIGHRATE").ToUpper()      = "Y", "Y", "N")
                 br.EwrHighestVolByWgt = If(G("EWRHIGHESTVOLBYWGT").ToUpper() = "Y", "Y", "N")
+                br.LastMaintDate    = G("LASTMAINTDATE")
+                br.OperatorId       = G("OPERATORID")
+                br.Revision         = G("REVISION")
                 BatchRows.Add(br)
             Next
         End Sub
@@ -1519,18 +1586,21 @@ Namespace ViewModels
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Account not found: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As NoDiscountRecordsException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Warning
                     row.StatusMessage = "No discount records"
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 ' Warning — not rethrown
             Catch ex As NumericValueException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Invalid numeric value: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As GenericScreenScraperException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
@@ -1538,12 +1608,14 @@ Namespace ViewModels
                     row.StatusMessage = ex.Message &
                         If(Not String.IsNullOrWhiteSpace(ex.ScreenDump), " [screen dump available]", "")
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As Exception
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             End Try
         End Sub
@@ -1589,6 +1661,85 @@ Namespace ViewModels
                     row.Number    = G("Number")
                     row.Item      = G("Item")
                     row.Part      = G("Part")
+                    row.Condition = G("Condition")
+                    row.PrepdOrCollect = GD("PrepdOrCollect", "NA")
+                    row.EffDate   = G("EffDate")
+                    row.CanDateItem = G("CanDateItem")
+                    row.Alternation = GD("Alternation", "NA")
+                    row.ClassRates = GD("ClassRates", "NA")
+                    row.ClsTrfAuth = G("ClsTrfAuth")
+                    row.ClsTrfNum  = G("ClsTrfNum")
+                    row.ClsTrfSec  = G("ClsTrfSec")
+                    row.RateEffDate = G("RateEffDate")
+                    row.HuType     = GD("HuType", "NA")
+                    row.MileageAuth = G("MileageAuth")
+                    row.MileageNum  = G("MileageNum")
+                    row.MileageRangeLow = G("MileageRangeLow")
+                    row.MileageRangeHigh = G("MileageRangeHigh")
+                    row.Comments   = G("Comments")
+                    row.RT1MinH    = G("RT1MinH")
+                    row.RT1MaxH    = G("RT1MaxH")
+                    row.RT1AvgMin  = G("RT1AvgMin")
+                    row.RT1AvgMax  = G("RT1AvgMax")
+                    row.RT1RateType = GD("RT1RateType", "NA")
+                    row.RT1Amt     = G("RT1Amt")
+                    row.RT2MinH    = G("RT2MinH")
+                    row.RT2MaxH    = G("RT2MaxH")
+                    row.RT2AvgMin  = G("RT2AvgMin")
+                    row.RT2AvgMax  = G("RT2AvgMax")
+                    row.RT2RateType = GD("RT2RateType", "NA")
+                    row.RT2Amt     = G("RT2Amt")
+                    row.RT3MinH    = G("RT3MinH")
+                    row.RT3MaxH    = G("RT3MaxH")
+                    row.RT3AvgMin  = G("RT3AvgMin")
+                    row.RT3AvgMax  = G("RT3AvgMax")
+                    row.RT3RateType = GD("RT3RateType", "NA")
+                    row.RT3Amt     = G("RT3Amt")
+                    row.RT4MinH    = G("RT4MinH")
+                    row.RT4MaxH    = G("RT4MaxH")
+                    row.RT4AvgMin  = G("RT4AvgMin")
+                    row.RT4AvgMax  = G("RT4AvgMax")
+                    row.RT4RateType = GD("RT4RateType", "NA")
+                    row.RT4Amt     = G("RT4Amt")
+                    row.RT5MinH    = G("RT5MinH")
+                    row.RT5MaxH    = G("RT5MaxH")
+                    row.RT5AvgMin  = G("RT5AvgMin")
+                    row.RT5AvgMax  = G("RT5AvgMax")
+                    row.RT5RateType = GD("RT5RateType", "NA")
+                    row.RT5Amt     = G("RT5Amt")
+                    row.RT6MinH    = G("RT6MinH")
+                    row.RT6MaxH    = G("RT6MaxH")
+                    row.RT6AvgMin  = G("RT6AvgMin")
+                    row.RT6AvgMax  = G("RT6AvgMax")
+                    row.RT6RateType = GD("RT6RateType", "NA")
+                    row.RT6Amt     = G("RT6Amt")
+                    row.RT7MinH    = G("RT7MinH")
+                    row.RT7MaxH    = G("RT7MaxH")
+                    row.RT7AvgMin  = G("RT7AvgMin")
+                    row.RT7AvgMax  = G("RT7AvgMax")
+                    row.RT7RateType = GD("RT7RateType", "NA")
+                    row.RT7Amt     = G("RT7Amt")
+                    row.RT8MinH    = G("RT8MinH")
+                    row.RT8MaxH    = G("RT8MaxH")
+                    row.RT8AvgMin  = G("RT8AvgMin")
+                    row.RT8AvgMax  = G("RT8AvgMax")
+                    row.RT8RateType = GD("RT8RateType", "NA")
+                    row.RT8Amt     = G("RT8Amt")
+                    row.RT9MinH    = G("RT9MinH")
+                    row.RT9MaxH    = G("RT9MaxH")
+                    row.RT9AvgMin  = G("RT9AvgMin")
+                    row.RT9AvgMax  = G("RT9AvgMax")
+                    row.RT9RateType = GD("RT9RateType", "NA")
+                    row.RT9Amt     = G("RT9Amt")
+                    row.RT10MinH    = G("RT10MinH")
+                    row.RT10MaxH    = G("RT10MaxH")
+                    row.RT10AvgMin  = G("RT10AvgMin")
+                    row.RT10AvgMax  = G("RT10AvgMax")
+                    row.RT10RateType = GD("RT10RateType", "NA")
+                    row.RT10Amt     = G("RT10Amt")
+                    row.LastMaintDate = G("LastMaintDate")
+                    row.OperatorId  = G("OperatorId")
+                    row.Revision    = G("Revision")
                     BatchRows.Add(row)
                     count += 1
                 Catch
@@ -1645,6 +1796,85 @@ Namespace ViewModels
                 br.Number    = G("NUMBER")
                 br.Item      = G("ITEM")
                 br.Part      = G("PART")
+                br.Condition = G("CONDITION")
+                br.PrepdOrCollect = GD("PREPDORCOLLECT", "NA")
+                br.EffDate   = G("EFFDATE")
+                br.CanDateItem = G("CANDATEITEM")
+                br.Alternation = GD("ALTERNATION", "NA")
+                br.ClassRates = GD("CLASSRATES", "NA")
+                br.ClsTrfAuth = G("CLSTRFAUTH")
+                br.ClsTrfNum  = G("CLSTRFNUM")
+                br.ClsTrfSec  = G("CLSTRFSEC")
+                br.RateEffDate = G("RATEEFFDATE")
+                br.HuType     = GD("HUTYPE", "NA")
+                br.MileageAuth = G("MILEAGEAUTH")
+                br.MileageNum  = G("MILEAGENUM")
+                br.MileageRangeLow = G("MILEAGERANGELOW")
+                br.MileageRangeHigh = G("MILEAGERANGEHIGH")
+                br.Comments   = G("COMMENTS")
+                br.RT1MinH    = G("RT1MINH")
+                br.RT1MaxH    = G("RT1MAXH")
+                br.RT1AvgMin  = G("RT1AVGMIN")
+                br.RT1AvgMax  = G("RT1AVGMAX")
+                br.RT1RateType = GD("RT1RATETYPE", "NA")
+                br.RT1Amt     = G("RT1AMT")
+                br.RT2MinH    = G("RT2MINH")
+                br.RT2MaxH    = G("RT2MAXH")
+                br.RT2AvgMin  = G("RT2AVGMIN")
+                br.RT2AvgMax  = G("RT2AVGMAX")
+                br.RT2RateType = GD("RT2RATETYPE", "NA")
+                br.RT2Amt     = G("RT2AMT")
+                br.RT3MinH    = G("RT3MINH")
+                br.RT3MaxH    = G("RT3MAXH")
+                br.RT3AvgMin  = G("RT3AVGMIN")
+                br.RT3AvgMax  = G("RT3AVGMAX")
+                br.RT3RateType = GD("RT3RATETYPE", "NA")
+                br.RT3Amt     = G("RT3AMT")
+                br.RT4MinH    = G("RT4MINH")
+                br.RT4MaxH    = G("RT4MAXH")
+                br.RT4AvgMin  = G("RT4AVGMIN")
+                br.RT4AvgMax  = G("RT4AVGMAX")
+                br.RT4RateType = GD("RT4RATETYPE", "NA")
+                br.RT4Amt     = G("RT4AMT")
+                br.RT5MinH    = G("RT5MINH")
+                br.RT5MaxH    = G("RT5MAXH")
+                br.RT5AvgMin  = G("RT5AVGMIN")
+                br.RT5AvgMax  = G("RT5AVGMAX")
+                br.RT5RateType = GD("RT5RATETYPE", "NA")
+                br.RT5Amt     = G("RT5AMT")
+                br.RT6MinH    = G("RT6MINH")
+                br.RT6MaxH    = G("RT6MAXH")
+                br.RT6AvgMin  = G("RT6AVGMIN")
+                br.RT6AvgMax  = G("RT6AVGMAX")
+                br.RT6RateType = GD("RT6RATETYPE", "NA")
+                br.RT6Amt     = G("RT6AMT")
+                br.RT7MinH    = G("RT7MINH")
+                br.RT7MaxH    = G("RT7MAXH")
+                br.RT7AvgMin  = G("RT7AVGMIN")
+                br.RT7AvgMax  = G("RT7AVGMAX")
+                br.RT7RateType = GD("RT7RATETYPE", "NA")
+                br.RT7Amt     = G("RT7AMT")
+                br.RT8MinH    = G("RT8MINH")
+                br.RT8MaxH    = G("RT8MAXH")
+                br.RT8AvgMin  = G("RT8AVGMIN")
+                br.RT8AvgMax  = G("RT8AVGMAX")
+                br.RT8RateType = GD("RT8RATETYPE", "NA")
+                br.RT8Amt     = G("RT8AMT")
+                br.RT9MinH    = G("RT9MINH")
+                br.RT9MaxH    = G("RT9MAXH")
+                br.RT9AvgMin  = G("RT9AVGMIN")
+                br.RT9AvgMax  = G("RT9AVGMAX")
+                br.RT9RateType = GD("RT9RATETYPE", "NA")
+                br.RT9Amt     = G("RT9AMT")
+                br.RT10MinH   = G("RT10MINH")
+                br.RT10MaxH   = G("RT10MAXH")
+                br.RT10AvgMin = G("RT10AVGMIN")
+                br.RT10AvgMax = G("RT10AVGMAX")
+                br.RT10RateType = GD("RT10RATETYPE", "NA")
+                br.RT10Amt    = G("RT10AMT")
+                br.LastMaintDate = G("LASTMAINTDATE")
+                br.OperatorId  = G("OPERATORID")
+                br.Revision    = G("REVISION")
                 BatchRows.Add(br)
             Next
         End Sub
@@ -1975,6 +2205,20 @@ Namespace ViewModels
 
                 Select Case row.Action.ToUpper()
 
+                    Case "ADD", "CHANGE"
+                        If Not row.HasEdTablePayload() Then
+                            Throw New InvalidOperationException("FXF4M ADD/CHANGE requires edTable payload fields (OpcoTtl, FxfTtl, EdPct, Dt, dates, or update user).")
+                        End If
+
+                        Dim payRule = If(String.IsNullOrWhiteSpace(row.Part), row.PayRule, row.Part)
+                        _session.FXF4M.setEdTable(
+                            carrier, custType, row.Account,
+                            row.Authority, row.Number, row.Item, payRule,
+                            row.ToEdTableCollection(row.Action))
+                        Application.Current.Dispatcher.InvokeAsync(Sub()
+                            row.Status = OperationStatus.Success
+                        End Sub)
+
                     Case "GET"
                         Dim it = _session.FXF4M.getItem(
                             carrier, custType, row.Account,
@@ -2041,18 +2285,21 @@ Namespace ViewModels
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Account not found: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As NoDiscountRecordsException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Warning
                     row.StatusMessage = "No discount records"
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 ' Warning — not rethrown
             Catch ex As NumericValueException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = "Invalid numeric value: " & ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As GenericScreenScraperException
                 Application.Current.Dispatcher.InvokeAsync(Sub()
@@ -2060,12 +2307,14 @@ Namespace ViewModels
                     row.StatusMessage = ex.Message &
                         If(Not String.IsNullOrWhiteSpace(ex.ScreenDump), " [screen dump available]", "")
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             Catch ex As Exception
                 Application.Current.Dispatcher.InvokeAsync(Sub()
                     row.Status        = OperationStatus.Error
                     row.StatusMessage = ex.Message
                 End Sub)
+                DebugLogger.LogError(row, ex)
                 Throw
             End Try
         End Sub
@@ -2111,6 +2360,15 @@ Namespace ViewModels
                     row.Number    = G("Number")
                     row.Item      = G("Item")
                     row.Part      = G("Part")
+                    row.PayRule   = G("PayRule")
+                    row.OpcoTtl   = G("OpcoTtl")
+                    row.FxfTtl    = G("FxfTtl")
+                    row.EdPct     = G("EdPct")
+                    row.Dt        = G("Dt")
+                    row.EffDate   = G("EffDate")
+                    row.ExpDate   = G("ExpDate")
+                    row.UpdDate   = G("UpdDate")
+                    row.UpdUserId = G("UpdUserId")
                     BatchRows.Add(row)
                     count += 1
                 Catch
@@ -2164,6 +2422,7 @@ Namespace ViewModels
                 br.Number    = G("NUMBER")
                 br.Item      = G("ITEM")
                 br.Part      = G("PART")
+                br.PayRule   = G("PAYRULE")
                 br.EffDate   = G("EFFDATE")
                 br.ExpDate   = G("EXPDATE")
                 br.PrepaidInbound   = If(G("PREPAIDIN").ToUpper()   = "Y", "Y", "N")
@@ -2171,6 +2430,12 @@ Namespace ViewModels
                 br.CollectInbound   = If(G("COLLECTIN").ToUpper()   = "Y", "Y", "N")
                 br.CollectOutbound  = If(G("COLLECTOUT").ToUpper()  = "Y", "Y", "N")
                 br.ThirdParty       = If(G("THIRDPARTY").ToUpper()  = "Y", "Y", "N")
+                br.OpcoTtl          = G("OPCOTTL")
+                br.FxfTtl           = G("FXFTTL")
+                br.EdPct            = G("EDPCT")
+                br.Dt               = G("DT")
+                br.UpdDate          = G("UPDDATE")
+                br.UpdUserId        = G("UPDUSERID")
                 BatchRows.Add(br)
             Next
         End Sub

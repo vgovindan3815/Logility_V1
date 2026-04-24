@@ -6,7 +6,7 @@ A WPF desktop application targeting **.NET Framework 4.8** written in **VB.NET**
 It wraps the FedEx Freight (FDXF) CICS screen scraping library and provides a
 multi-screen batch operations UI for the Logility pricing system.
 
-The app drives a **Bluezone 3270 terminal emulator** via the `BZWHLLLIB` COM API.
+The app uses **FedEx_Emu TN3270 runtime** through the FedEx screen scraping libraries.
 The emulator session is created and held open for the lifetime of the app.
 
 ---
@@ -82,8 +82,8 @@ FXF3A_Tool/
     ├── FedEx.PABST.SS.Screens.FXF3F.dll
     ├── FedEx.PABST.SS.Screens.FXF3G.dll
     ├── FedEx.PABST.SS.Exceptions.dll
-    ├── Interop.BZWHLLLIB.dll    ← NOT USED (FedEx_Emu mode)
     ├── tn3270_dll.dll           ← REQUIRED for FedEx_Emu mode
+    ├── fxf3270.rsf
     └── ScreenLayouts.xml
 ```
 
@@ -95,28 +95,34 @@ FXF3A_Tool/
 
 The application uses `ScreenScraping.sslibTypeType.FedEx_Emu` which requires a native `tn3270_dll.dll`:
 
-**Required DLL Location:**
+**Supported native DLL location on user machines:**
 ```
 E:\fedex\tn3270\tn3270_dll.dll
 ```
 
-**Setup Steps:**
-1. Create virtual E: drive: `subst e: C:\temp`
-2. Create directory: `C:\temp\fedex\tn3270\`
-3. Copy `tn3270_dll.dll` to `C:\temp\fedex\tn3270\tn3270_dll.dll`
+**Canonical repo source files:**
+- `deploy\tn3270_dll.dll`
+- `deploy\fxf3270.rsf`
+- `Screenlayouts\ScreenLayouts.xml`
+- `deploy\FedEx.PABST.SS.*.dll`
 
-**Alternative Locations** (searched in order):
-- `C:\Program Files\fedex\tn3270\tn3270_dll.dll`
-- `C:\fedex\tn3270_dll.dll`
-- Current directory variants
+**Supported setup scripts:**
+- `docs\Create-Tn3270Subst.ps1`
+- `docs\Setup-LogilityFreightRuntime.ps1`
 
-**Note:** The `Interop.BZWHLLLIB.dll` is NOT used in FedEx_Emu mode despite being in deploy/.
+**Recommended commands:**
+```powershell
+.\docs\Create-Tn3270Subst.ps1
+.\docs\Setup-LogilityFreightRuntime.ps1 -InstallRoot 'C:\Logility_Freight'
+```
+
+**Note:** The current project runtime path is FedEx_Emu with tn3270_dll.dll and ScreenLayouts.xml.
 
 ### Troubleshooting
 
 **"Couldn't find emulator dll" Error:**
 - Ensure `tn3270_dll.dll` is at `E:\fedex\tn3270\tn3270_dll.dll`
-- Verify E: drive is mapped: `subst e: C:\temp`
+- Re-run `docs\Create-Tn3270Subst.ps1`
 - Check DLL architecture (must be x64)
 
 **Connection Issues:**
@@ -137,11 +143,11 @@ FedEx.PABST.SS.Exceptions               ← typed exceptions
 
 ### Session creation pattern
 ```vb
-' Create session — this connects Bluezone and logs into CICS
+' Create session — this initializes FedEx_Emu and logs into CICS
 Dim ss As New ScreenScraping(
     ScreenScraping.sslibTypeType.FedEx_Emu,
     hostConnectionString,       ' e.g. "hostname:23"
-    screenLayoutXMLPath,        ' path to fxf3270.rsf
+    screenLayoutXMLPath,        ' path to ScreenLayouts.xml
     waitTimeoutMs,              ' e.g. 30000
     mfSystem,                   ' e.g. "FDXF"
     mfUserId_t,                 ' terminal user ID
@@ -263,7 +269,7 @@ WinFX targets needed for MarkupCompilePass1 (XAML → .g.vb generation).
 & 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe' FXF3A_Tool.vbproj /p:Configuration=Release /t:Rebuild
 
 # Run (after build)
-bin\Debug\FXF3A_Tool.exe
+bin\Debug\Logility_Freight.exe
 ```
 
 **IMPORTANT — VB language version constraints:**

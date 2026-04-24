@@ -226,7 +226,7 @@ Namespace Core
                 _lastConnectError = ""
                 RaiseEvent StatusChanged(Me, "Connecting to " & host & "...")
 
-                ValidateLayoutPath(xmlPath)
+                xmlPath = ResolveLayoutPath(xmlPath)
 
                 ' Start (or reuse) the dedicated session thread BEFORE posting work to it
                 EnsureSessionThread()
@@ -348,15 +348,28 @@ Namespace Core
         ''' Validates that the supplied layout path is present and points to an existing file.
         ''' Detailed content parsing remains inside the ScreenScraping library.
         ''' </summary>
-        Private Sub ValidateLayoutPath(xmlPath As String)
+        Private Function ResolveLayoutPath(xmlPath As String) As String
             If String.IsNullOrWhiteSpace(xmlPath) Then
                 Throw New InvalidDataException("Screen layout XML path is empty.")
             End If
 
-            If Not File.Exists(xmlPath) Then
-                Throw New FileNotFoundException("Screen layout XML file was not found.", xmlPath)
-            End If
-        End Sub
+            If File.Exists(xmlPath) Then Return xmlPath
+
+            Dim baseDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+            Dim candidates As New List(Of String) From {
+                System.IO.Path.Combine(baseDir, "ScreenLayouts.xml"),
+                System.IO.Path.Combine(baseDir, "Screenlayouts", "ScreenLayouts.xml"),
+                System.IO.Path.Combine(baseDir, "..", "Debug", "ScreenLayouts.xml"),
+                System.IO.Path.Combine(baseDir, "..", "Debug", "Screenlayouts", "ScreenLayouts.xml")
+            }
+
+            For Each candidate In candidates
+                Dim full = System.IO.Path.GetFullPath(candidate)
+                If File.Exists(full) Then Return full
+            Next
+
+            Throw New FileNotFoundException("Screen layout XML file was not found.", xmlPath)
+        End Function
 
         ' ── Disconnect ───────────────────────────────────────────────
         Public Sub Disconnect()

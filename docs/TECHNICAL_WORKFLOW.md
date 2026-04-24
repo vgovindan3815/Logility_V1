@@ -18,7 +18,22 @@ shared connect logic:
 | **Login View (full form)** | User fills fields, clicks "Connect" in `LoginView.xaml` | `LoginView.xaml.vb` code-behind reads PasswordBox values → calls `LoginViewModel.ConnectWithPasswords(pwdT, pwdL)` |
 | **Top-bar quick connect** | Connect icon/button in the main toolbar | `LoginViewModel.ExecuteConnect()` raises `RequestPassword` events → view shows `PasswordDialog` modal × 2 → callback returns each password |
 
-### 1.2 Pre-Connect Validation
+### 1.2 Runtime Bootstrap (Business-Friendly)
+
+Before connection attempts, runtime setup is expected on the user machine.
+
+- Business-friendly launcher for tn3270 mapping: `docs\Run-Tn3270Subst.bat`
+- Business-friendly launcher for full runtime setup: `docs\Run-LogilityRuntimeSetup.bat`
+- Support/advanced scripts: `docs\Create-Tn3270Subst.ps1`, `docs\Setup-LogilityFreightRuntime.ps1`
+
+Supported native tn3270 path:
+
+- `E:\fedex\tn3270\tn3270_dll.dll`
+
+The runtime folder beside `Logility_Freight.exe` should contain the managed FedEx DLL set,
+`tn3270_dll.dll`, `fxf3270.rsf`, and `ScreenLayouts.xml`.
+
+### 1.3 Pre-Connect Validation
 
 Before any network or mainframe call is made, `CanConnect` gates the button:
 
@@ -31,7 +46,7 @@ CanConnect = NOT IsConnected AND NOT IsBusy
 `ExecuteConnect` / `ConnectWithPasswords` also validate Terminal Password is non-empty before
 proceeding. If any check fails an `ErrorBanner` string is raised on the UI (no dialog boxes).
 
-### 1.3 Settings Loaded at Startup
+### 1.4 Settings Loaded at Startup
 
 When the application launches, `LoginViewModel.LoadSettings()` restores the last-used
 non-sensitive values from `My.MySettings.Default` (stored in the user-profile `user.config`):
@@ -42,13 +57,13 @@ non-sensitive values from `My.MySettings.Default` (stored in the user-profile `u
 | `LastSystem` | `SystemCode` | `"FDXF"` |
 | `LastUidT` | `UidT` (terminal user ID) | `""` |
 | `LastUidL` | `UidL` (Logility user ID) | `""` |
-| `LastRsfPath` | `RsfPath` | `"C:\FXF\fxf3270.rsf"` |
+| `LastRsfPath` | `RsfPath` | `AppDomain.CurrentDomain.BaseDirectory + "ScreenLayouts.xml"` |
 | `LastTimeout` | `Timeout` (ms) | `30000` |
 
 **Passwords are never persisted** — they exist only as local string variables during the
 connect call and are overwritten before going out of scope.
 
-### 1.4 Connect Execution Flow
+### 1.5 Connect Execution Flow
 
 ```
 LoginViewModel.DoConnectAsync(pwdT, pwdL)
@@ -66,7 +81,7 @@ LoginViewModel.DoConnectAsync(pwdT, pwdL)
 │   ├─ new ScreenScraping(
 │   │      sslibTypeType.FedEx_Emu,  ← emulator type
 │   │      host,                     ← e.g. "mfhost.example.com:23"
-│   │      xmlPath,                  ← path to fxf3270.rsf screen layout
+│   │      xmlPath,                  ← path to ScreenLayouts.xml
 │   │      timeoutMs,                ← e.g. 30000 ms
 │   │      system,                   ← e.g. "FDXF"
 │   │      uidT,                     ← terminal RACF/CICS user ID
@@ -74,12 +89,11 @@ LoginViewModel.DoConnectAsync(pwdT, pwdL)
 │   │      pwdT,                     ← terminal password (in-memory only)
 │   │      pwdL,                     ← Logility password (in-memory only)
 │   │      connectionType.FREIGHT,   ← FedEx Freight connection type
-│   │      visible := True)          ← Bluezone window visible
+│   │      visible := True)          ← emulator session may be visible
 │   │
 │   │   *** ScreenScraping constructor BLOCKS until TN3270 login completes ***
-│   │   Bluezone opens, connects to host:23, sends RACF credentials,
-│   │   navigates through CICS sign-on screens, reaches the Logility
-│   │   pricing system menu. Returns when the session is ready.
+│   │   FedEx_Emu initializes TN3270 runtime, connects to host:port, sends credentials,
+│   │   navigates through CICS sign-on screens, and returns when session is ready.
 │   │
 │   ├─ Instantiate all 12 screen objects (all share same _ss session):
 │   │      _fxf3a = New FXF3A(_ss)
@@ -110,7 +124,7 @@ LoginViewModel.DoConnectAsync(pwdT, pwdL)
    IsBusy = False
 ```
 
-### 1.5 Connection State Propagation
+### 1.6 Connection State Propagation
 
 After `ConnectionChanged` fires, the following UI updates occur automatically via
 property-change bindings:
@@ -120,7 +134,7 @@ property-change bindings:
   `CanExecute` (they require `IsConnected = True`)
 - The top-bar Disconnect button becomes enabled; Connect button becomes disabled
 
-### 1.6 Disconnect Flow
+### 1.7 Disconnect Flow
 
 ```
 LoginViewModel.ExecuteDisconnect()
@@ -129,7 +143,7 @@ LoginViewModel.ExecuteDisconnect()
    ├─ CleanupSession():
    │    ├─ Nulls all 12 screen objects (_fxf3a … _fxf4m = Nothing)
    │    ├─ _ss.Close()          ← graceful CICS sign-off
-   │    └─ _ss.SSProcess.Kill() ← terminate Bluezone process
+   │    └─ _ss.SSProcess.Kill() ← terminate emulator process
    ├─ _isConnected = False
    ├─ Raises StatusChanged: "Disconnected"
    └─ Raises ConnectionChanged event
