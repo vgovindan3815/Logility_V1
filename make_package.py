@@ -16,8 +16,8 @@ Structure inside the ZIP:
       fxf3270.rsf                 <- CICS session profile
       tn3270_dll.dll              <- native TN3270 DLL
     docs\
-      FXF3A_Tool_Connection_Guide.docx
-      FXF3A_Tool_Technical_Workflow.docx
+      Logility_Freight_Connection_Guide.docx
+      Logility_Freight_Technical_Workflow.docx
       MAINFRAME_CONNECTION_GUIDE.md
       FUNCTIONAL_SPEC.md
       TECHNICAL_WORKFLOW.md
@@ -69,8 +69,8 @@ SCREEN_FILES = [
 
 # ── Documentation ────────────────────────────────────────────────────────────
 DOCS_FILES = [
-    "FXF3A_Tool_Connection_Guide.docx",
-    "FXF3A_Tool_Technical_Workflow.docx",
+    "Logility_Freight_Connection_Guide.docx",
+    "Logility_Freight_Technical_Workflow.docx",
     "MAINFRAME_CONNECTION_GUIDE.md",
     "FUNCTIONAL_SPEC.md",
     "TECHNICAL_WORKFLOW.md",

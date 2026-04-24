@@ -108,7 +108,7 @@ Test-Path must return True.
 ## Build and Run
 
 ```powershell
-& 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe' FXF3A_Tool.vbproj /p:Configuration=Debug /t:Rebuild /v:minimal
+& 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe' Logility_Freight.vbproj /p:Configuration=Debug /t:Rebuild /v:minimal
 .\bin\Debug\Logility_Freight.exe
 ```
 

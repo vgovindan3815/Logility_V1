@@ -22,7 +22,7 @@ fix_nameof*.ps1
 fix_vb12.ps1
 
 # Temp project file
-FXF3A_Tool_maxdkjsd_wpftmp.vbproj
+Logility_Freight_maxdkjsd_wpftmp.vbproj
 
 # Codebase zip (large source archive)
 Codebase/
@@ -31,13 +31,13 @@ Codebase/
 Claude specs/
 
 # Generated docs
-FXF3A_Tool_Technical_Workflow.docx
+Logility_Freight_Technical_Workflow.docx
 gen_tech_doc.py
-FXF3A_Tool_Connection_Guide.docx
+Logility_Freight_Connection_Guide.docx
 gen_connection_guide_docx.py
 
 # Distributable packages
-FXF3A_Tool_*_dist.zip
+Logility_Freight_*_dist.zip
 dist/
 archives/
 bin/Debug_hotfix*/

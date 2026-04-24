@@ -26,6 +26,7 @@
     <DefineConstants>DEBUG=True,TRACE=True</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>42108</NoWarn>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
@@ -35,6 +36,7 @@
     <DefineConstants>TRACE=True</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>42108</NoWarn>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>

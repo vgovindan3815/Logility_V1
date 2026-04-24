@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "msbuild",
       "args": [
-        "FXF3A_Tool.vbproj",
+        "Logility_Freight.vbproj",
         "/p:Configuration=Debug",
         "/p:Platform=AnyCPU",
         "/v:minimal"
@@ -26,7 +26,7 @@
       "type": "shell",
       "command": "msbuild",
       "args": [
-        "FXF3A_Tool.vbproj",
+        "Logility_Freight.vbproj",
         "/p:Configuration=Release",
         "/p:Platform=AnyCPU",
         "/v:minimal"
@@ -41,7 +41,7 @@
     {
       "label": "Run Debug",
       "type": "shell",
-      "command": "bin\\Debug\\FXF3A_Tool.exe",
+      "command": "bin\\Debug\\Logility_Freight.exe",
       "dependsOn": "Build Debug",
       "group": "test",
       "presentation": {
@@ -54,7 +54,7 @@
       "type": "shell",
       "command": "msbuild",
       "args": [
-        "FXF3A_Tool.vbproj",
+        "Logility_Freight.vbproj",
         "/t:Clean"
       ],
       "group": "build",
